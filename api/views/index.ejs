@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html ng-app="app">
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <ng-view></ng-view>
+
+    <!-- Libraries -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular-route.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular-resource.min.js"></script>
+
+    <!-- Template -->
+    <script type="text/ng-template" id="/memos.html">
+      Memo CRUD Test:
+      <ul>
+        <li ng-repeat="memo in memos">
+          <a ng-show="!editing[$index]" href="#/{{memo._id}}">{{memo.title}}</a>
+          <button ng-show="!editing[$index]" ng-click="edit($index)">edit</button>
+
+          <input ng-show="editing[$index]" type="text" ng-model="memo.title">
+          <button ng-show="editing[$index]" ng-click="update($index)">Update</button>
+          <button ng-show="editing[$index]" ng-click="cancel($index)">Cancel</button>
+          <button ng-show="!editing[$index]" ng-click="remove($index)">remove</button>
+        </li>
+      </ul>
+      New memo <input type="text" ng-model="newMemo"><button ng-click="save()">Create</button>
+    </script>
+
+    <script type="text/ng-template" id="/memoDetails.html">
+      <h1>{{ memo.title }}</h1>
+      id: {{ memo._id }}<br>
+      createdAt: {{ memo.createdAt }}<br>
+      content: <textarea ng-model="memo.content"></textarea><br><br>
+
+      <button ng-click="update()">Update</button>
+      <button ng-click="remove()">Remove</button>
+      <a href="/">Cancel</a>
+    </script>
+
+
+    <script>
+      angular.module('app', ['ngRoute', 'ngResource'])
+
+        //---------------
+        // Services
+        //---------------
+
+        .factory('Memos', ['$resource', function($resource){
+          return $resource('/memos/:id', null, {
+            'update': { method:'PUT' }
+          });
+        }])
+
+        //---------------
+        // Controllers
+        //---------------
+
+        .controller('MemoController', ['$scope', 'Memos', function ($scope, Memos) {
+          $scope.editing = [];
+          $scope.memos = Memos.query();
+          window.a = $scope.memos
+
+          $scope.save = function(){
+            if(!$scope.newMemo || $scope.newMemo.length < 1) return;
+            var memo = new Memos({ title: $scope.newMemo });
+
+            memo.$save(function(){
+              $scope.memos.push(memo);
+              $scope.newMemo = ''; // clear textbox
+            });
+          }
+
+          $scope.update = function(index){
+            var memo = $scope.memos[index];
+            Memos.update({id: memo._id}, {
+              title: memo.title,
+            });
+            $scope.editing[index] = false;
+          }
+
+          $scope.edit = function(index){
+            $scope.editing[index] = angular.copy($scope.memos[index]);
+          }
+
+          $scope.cancel = function(index){
+            $scope.memos[index] = angular.copy($scope.editing[index]);
+            $scope.editing[index] = false;
+          }
+
+          $scope.remove = function(index){
+            var memo = $scope.memos[index];
+            Memos.remove({id: memo._id}, function(){
+              $scope.memos.splice(index, 1);
+            });
+          }
+        }])
+
+        .controller('MemoDetailCtrl', ['$scope', '$routeParams', 'Memos', '$location', function ($scope, $routeParams, Memos, $location) {
+          $scope.memo = Memos.get({id: $routeParams.id });
+
+          $scope.remove = function(){
+            Memos.remove({id: $scope.memo._id}, function(){
+              $location.url('/');
+            });
+          }
+
+          $scope.update = function(){
+            var memo = $scope.memo;
+            Memos.update({id: memo._id}, {
+              content: memo.content,
+            }, function() {
+              $location.reload();
+            });
+          }
+        }])
+
+        //---------------
+        // Routes
+        //---------------
+
+        .config(['$routeProvider', function ($routeProvider) {
+          $routeProvider
+            .when('/', {
+              templateUrl: '/memos.html',
+              controller: 'MemoController'
+            })
+
+            .when('/:id', {
+              templateUrl: '/memoDetails.html',
+              controller: 'MemoDetailCtrl'
+           });
+        }]);
+    </script>
+  </body>
+</html>
