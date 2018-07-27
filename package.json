@@ -1,0 +1,40 @@
+{
+  "name": "my-app",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "antd": "^3.7.2",
+    "axios": "^0.18.0",
+    "better-react-spinkit": "^2.0.4",
+    "camelize": "^1.0.0",
+    "decamelize-keys": "^1.1.0",
+    "enzyme": "^3.3.0",
+    "enzyme-adapter-react-16": "^1.1.1",
+    "enzyme-to-json": "^3.3.4",
+    "faker": "^4.1.0",
+    "history": "^4.7.2",
+    "immutable": "^3.8.2",
+    "jest-immutable-matchers": "^2.0.1",
+    "moment": "^2.22.2",
+    "prettier": "^1.13.7",
+    "query-string": "^6.1.0",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1",
+    "react-redux": "^5.0.7",
+    "react-router": "^4.3.1",
+    "react-router-dom": "^4.3.1",
+    "react-router-redux": "^4.0.8",
+    "react-scripts": "1.1.4",
+    "redux": "^4.0.0",
+    "redux-actions": "^2.6.1",
+    "redux-pender": "^1.2.1",
+    "redux-thunk": "^2.3.0",
+    "reflex": "^1.1.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}
