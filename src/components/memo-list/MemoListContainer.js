@@ -7,7 +7,16 @@ export class MemoListContainer extends Component {
   componentDidMount() {
     const { label, MemoListActions } = this.props;
     if (label === 'all') {
-      return MemoListActions.listAllMemos();
+      MemoListActions.listAllMemos();
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    const { label, MemoListActions } = this.props;
+    if (label !== prevProps.label) {
+      if (label === 'all') {
+        MemoListActions.listAllMemos();
+      }
     }
   }
 

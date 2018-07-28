@@ -37,5 +37,15 @@ describe('[MemoListContainer]', () => {
         expect(simpleProps.MemoListActions.listAllMemos).toBeCalledWith();
       });
     });
+
+    describe('when updated', () => {
+      it('calls MemoListActions.listAllMemos() if label is changed to "all"', () => {
+        simpleProps.label = 'something';
+        component = renderSimple();
+        expect(simpleProps.MemoListActions.listAllMemos).not.toBeCalled();
+        component.setProps({ label: 'all' });
+        expect(simpleProps.MemoListActions.listAllMemos).toBeCalledWith();
+      });
+    });
   });
 });

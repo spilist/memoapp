@@ -39,7 +39,7 @@ const renderWithRouter = ({ path, props, Component }) =>
 
 const renderSimple = ({ props, Component, deep = false }) => {
   const render = deep ? mount : shallow;
-  return render(<Component {...props} />);
+  return render(<Component {...props} />, { lifecycleExperimental: true });
 };
 
 const toJS = obj => JSON.parse(JSON.stringify(obj));
