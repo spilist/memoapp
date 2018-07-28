@@ -9,6 +9,10 @@ class Root extends Component {
         <Switch>
           <Route exact path="/" render={() => <Redirect replace to="/all" />} />
           <Route path="/all" render={() => <MemoListcontainer label="all" />} />
+          <Route
+            path="/untagged"
+            render={() => <MemoListcontainer label="none" />}
+          />
         </Switch>
       </div>
     );

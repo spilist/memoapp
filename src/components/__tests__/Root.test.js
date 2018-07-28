@@ -35,4 +35,16 @@ describe('[Root]', () => {
       expect(container.prop('label')).toBe('all');
     });
   });
+
+  describe('when path is /untagged', () => {
+    beforeEach(() => {
+      path = '/untagged';
+    });
+
+    it('renders MemoListContainer with label="none" prop', () => {
+      component = render();
+      const container = component.find('MemoListContainer');
+      expect(container.prop('label')).toBe('none');
+    });
+  });
 });
