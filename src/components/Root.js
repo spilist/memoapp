@@ -17,11 +17,11 @@ class Root extends Component {
             path="/:labelSlug"
             render={({ match }) => {
               const { labelSlug } = match.params;
-              const labelId = parseInt(labelSlug.split('-').pop());
-              return isNaN(labelId) ? (
-                <Redirect replace to="/all" />
+              const isLabelIdExist = labelSlug.indexOf('--') !== -1;
+              return isLabelIdExist ? (
+                <MemoListcontainer label={labelSlug.split('--').pop()} />
               ) : (
-                <MemoListcontainer label={labelId} />
+                <Redirect replace to="/all" />
               );
             }}
           />
