@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as memoListActions from '~/store/modules/memoList';
+import MemoList from './MemoList';
 
 export class MemoListContainer extends Component {
   componentDidMount() {
@@ -21,13 +22,14 @@ export class MemoListContainer extends Component {
   }
 
   render() {
-    return <div>MemoListContainer</div>;
+    return <MemoList {...this.props} />;
   }
 }
 
 export default connect(
   ({ memoList, pender }) => ({
     memoList,
+    loading: pender.pending[memoListActions.LIST_ALL_MEMOS],
   }),
   dispatch => ({
     MemoListActions: bindActionCreators(memoListActions, dispatch),

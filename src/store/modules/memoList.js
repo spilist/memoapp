@@ -3,7 +3,7 @@ import { Record, Map, List } from 'immutable';
 import { pender } from 'redux-pender';
 import * as api from '~/api';
 
-const LIST_ALL_MEMOS = 'memoList/LIST_ALL_MEMOS';
+export const LIST_ALL_MEMOS = 'memoList/LIST_ALL_MEMOS';
 
 export const listAllMemos = createAction(LIST_ALL_MEMOS, () => api.listMemos());
 
