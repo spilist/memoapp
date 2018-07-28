@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
+import MemoListcontainer from './memo-list/MemoListContainer';
 
 class Root extends Component {
   render() {
@@ -7,6 +8,7 @@ class Root extends Component {
       <div className="root">
         <Switch>
           <Route exact path="/" render={() => <Redirect replace to="/all" />} />
+          <Route path="/all" render={() => <MemoListcontainer label="all" />} />
         </Switch>
       </div>
     );

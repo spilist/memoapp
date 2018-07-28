@@ -23,4 +23,16 @@ describe('[Root]', () => {
       expect(redirect.prop('replace')).toBe('true');
     });
   });
+
+  describe('when path is /all', () => {
+    beforeEach(() => {
+      path = '/all';
+    });
+
+    it('renders MemoListContainer with label="all" prop', () => {
+      component = render();
+      const container = component.find('MemoListContainer');
+      expect(container.prop('label')).toBe('all');
+    });
+  });
 });
