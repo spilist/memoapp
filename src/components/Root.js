@@ -3,7 +3,13 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 
 class Root extends Component {
   render() {
-    return <div className="root">root</div>;
+    return (
+      <div className="root">
+        <Switch>
+          <Route exact path="/" render={() => <Redirect replace to="/all" />} />
+        </Switch>
+      </div>
+    );
   }
 }
 
