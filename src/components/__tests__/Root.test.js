@@ -47,4 +47,27 @@ describe('[Root]', () => {
       expect(container.prop('label')).toBe('none');
     });
   });
+
+  describe('when path is /:labelSlug', () => {
+    it('renders MemoListContainer with label=":labelId" prop when path is in correct form', () => {
+      path = '/some-label-slug-17';
+      component = render();
+      const container = component.find('MemoListContainer');
+      expect(container.prop('label')).toBe(17);
+    });
+
+    it('redirects to /all when path is not in correct form', () => {
+      path = '/some-label-slug-xx';
+      component = render();
+      let redirect = component.find('.Redirect');
+      expect(redirect.prop('to')).toBe('/all');
+      expect(redirect.prop('replace')).toBe('true');
+
+      path = '/some-label-slug-x34x';
+      component = render();
+      redirect = component.find('.Redirect');
+      expect(redirect.prop('to')).toBe('/all');
+      expect(redirect.prop('replace')).toBe('true');
+    });
+  });
 });

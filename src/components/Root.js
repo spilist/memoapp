@@ -13,6 +13,18 @@ class Root extends Component {
             path="/untagged"
             render={() => <MemoListcontainer label="none" />}
           />
+          <Route
+            path="/:labelSlug"
+            render={({ match }) => {
+              const { labelSlug } = match.params;
+              const labelId = parseInt(labelSlug.split('-').pop());
+              return isNaN(labelId) ? (
+                <Redirect replace to="/all" />
+              ) : (
+                <MemoListcontainer label={labelId} />
+              );
+            }}
+          />
         </Switch>
       </div>
     );
