@@ -44,6 +44,7 @@
     "moment": "^2.22.2",
     "moxios": "^0.4.0",
     "object-assign": "4.1.1",
+    "open-color-js": "^0.0.1",
     "postcss-flexbugs-fixes": "3.2.0",
     "postcss-loader": "2.0.8",
     "prettier": "^1.13.7",
