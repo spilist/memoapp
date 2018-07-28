@@ -1,51 +1,48 @@
+import React from 'react';
 import utils from '~/utils/TestUtils';
-import { MemoListContainer } from '../MemoListContainer';
+import { generateMemos } from '~/__mockdata__/Memo';
+import ConnectedMemoListContainer from '../MemoListContainer';
 
-let path, simpleProps, props, component;
+jest.mock('../MemoList', () => props => (
+  <div id="MemoList" props={props}>
+    MemoList
+  </div>
+));
+
+let path, store, ownProps, state, component;
 beforeEach(() => {
   path = '/all';
-  props = {};
-  simpleProps = {
-    MemoListActions: {
-      listAllMemos: jest.fn(),
+  ownProps = {};
+  state = {
+    memoList: {
+      memos: generateMemos(15),
+    },
+    pender: {
+      pending: {},
     },
   };
+  store = utils.mockStore(state);
 });
 
 const render = () =>
-  utils.renderWithRouter({
+  utils.renderConnected({
     path,
-    props,
-    Component: MemoListContainer,
-  });
-
-const renderSimple = () =>
-  utils.renderSimple({
-    props: simpleProps,
-    Component: MemoListContainer,
+    ownProps,
+    store,
+    ConnectedComponent: ConnectedMemoListContainer,
   });
 
 describe('[MemoListContainer]', () => {
   describe('when props.label === "all"', () => {
     beforeEach(() => {
-      simpleProps.label = 'all';
+      ownProps.label = 'all';
     });
 
-    describe('when mounted', () => {
-      it('calls MemoListActions.listAllMemos()', () => {
-        renderSimple();
-        expect(simpleProps.MemoListActions.listAllMemos).toBeCalledWith();
-      });
-    });
-
-    describe('when updated', () => {
-      it('calls MemoListActions.listAllMemos() if label is changed to "all"', () => {
-        simpleProps.label = 'something';
-        component = renderSimple();
-        expect(simpleProps.MemoListActions.listAllMemos).not.toBeCalled();
-        component.setProps({ label: 'all' });
-        expect(simpleProps.MemoListActions.listAllMemos).toBeCalledWith();
-      });
+    it('provides labelName as "전체" and memos as whole memos to MemoList component', () => {
+      component = render();
+      const MemoList = component.find('#MemoList');
+      expect(MemoList.prop('props').labelName).toBe('전체');
+      expect(MemoList.prop('props').memos).toEqual(state.memoList.memos);
     });
   });
 });

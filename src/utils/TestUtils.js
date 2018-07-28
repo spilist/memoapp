@@ -5,28 +5,20 @@ import { MemoryRouter, Route } from 'react-router-dom';
 import penderMiddleware from 'redux-pender';
 import configureMockStore from 'redux-mock-store';
 
-const renderConnected = ({ path, store, ConnectedComponent }) => {
-  let routingProps;
-  const rendered = mount(
+const renderConnected = ({ path, ownProps, store, ConnectedComponent }) =>
+  mount(
     <MemoryRouter initialEntries={[path]}>
       <Route
         render={props => {
-          routingProps = props;
           return (
             <Provider store={store}>
-              <ConnectedComponent {...props} />
+              <ConnectedComponent {...props} {...ownProps} />
             </Provider>
           );
         }}
       />
     </MemoryRouter>
   );
-
-  return {
-    routingProps,
-    rendered,
-  };
-};
 
 const renderWithRouter = ({ path, props, Component }) =>
   mount(

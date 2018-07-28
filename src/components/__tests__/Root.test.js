@@ -1,6 +1,7 @@
 import React from 'react';
+import moxios from 'moxios';
 import utils from '~/utils/TestUtils';
-import Root from '../Root';
+import ConnectedRoot, { Root } from '../Root';
 import store from '~/store';
 
 jest.mock('../memo-list/MemoListContainer', () => props => (
@@ -9,17 +10,35 @@ jest.mock('../memo-list/MemoListContainer', () => props => (
   </div>
 ));
 
-let path, component;
+let path, ownProps, simpleProps, component;
 beforeEach(() => {
   path = '/';
+  ownProps = {};
+  simpleProps = {
+    MemoListActions: {
+      listAllMemos: jest.fn(),
+    },
+  };
+  moxios.install();
+});
+
+afterEach(() => {
+  moxios.uninstall();
 });
 
 const render = () =>
   utils.renderConnected({
     path,
+    ownProps,
     store,
-    ConnectedComponent: Root,
-  }).rendered;
+    ConnectedComponent: ConnectedRoot,
+  });
+
+const renderSimple = () =>
+  utils.renderSimple({
+    props: simpleProps,
+    Component: Root,
+  });
 
 describe('[Root]', () => {
   describe('when path is /', () => {
@@ -71,6 +90,13 @@ describe('[Root]', () => {
       let redirect = component.find('.Redirect');
       expect(redirect.prop('to')).toBe('/all');
       expect(redirect.prop('replace')).toBe('true');
+    });
+  });
+
+  describe('when mounted', () => {
+    it('calls MemoListActions.listAllMemos()', () => {
+      renderSimple();
+      expect(simpleProps.MemoListActions.listAllMemos).toBeCalledWith();
     });
   });
 });

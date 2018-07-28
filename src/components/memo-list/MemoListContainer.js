@@ -1,37 +1,35 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import * as memoListActions from '~/store/modules/memoList';
 import MemoList from './MemoList';
 
 export class MemoListContainer extends Component {
-  componentDidMount() {
-    const { label, MemoListActions } = this.props;
-    if (label === 'all') {
-      MemoListActions.listAllMemos();
-    }
-  }
-
-  componentDidUpdate(prevProps) {
-    const { label, MemoListActions } = this.props;
-    if (label !== prevProps.label) {
-      if (label === 'all') {
-        MemoListActions.listAllMemos();
-      }
-    }
-  }
-
   render() {
     return <MemoList {...this.props} />;
   }
 }
 
+const labelName = label => {
+  switch (label) {
+    case 'all':
+    default:
+      return '전체';
+  }
+};
+
+const memos = (label, memoListState) => {
+  switch (label) {
+    case 'all':
+    default:
+      return memoListState.memos;
+  }
+};
+
 export default connect(
-  ({ memoList, pender }) => ({
-    memoList,
+  ({ memoList, pender }, { label }) => ({
+    labelName: labelName(label),
+    memos: memos(label, memoList),
     loading: pender.pending[memoListActions.LIST_ALL_MEMOS],
   }),
-  dispatch => ({
-    MemoListActions: bindActionCreators(memoListActions, dispatch),
-  })
+  dispatch => ({})
 )(MemoListContainer);

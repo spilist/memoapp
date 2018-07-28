@@ -9,6 +9,10 @@ const MemoHeaderListIcon = styled.div`
   color: ${oc.gray6};
 `;
 
+const MemoHeaderTitle = styled.div`
+  font-weight: bold;
+`;
+
 const MemoCardTitle = styled.div`
   font-size: 1rem;
 `;
@@ -29,24 +33,26 @@ export default class MemoList extends Component {
   };
 
   renderHeader = () => {
-    const { memoList } = this.props;
+    const { labelName, memos, loading } = this.props;
+    const size = loading ? '...' : memos.size;
     return (
       <Box>
         <Flex>
           <MemoHeaderListIcon onClick={this.toggleExpansion}>
             <i className="fa fa-list" />
           </MemoHeaderListIcon>
+          <MemoHeaderTitle>{`${labelName} (${size})`}</MemoHeaderTitle>
         </Flex>
       </Box>
     );
   };
 
   renderList = () => {
-    const { memoList, loading } = this.props;
+    const { memos, loading } = this.props;
     return loading ? (
       <Spinner />
     ) : (
-      memoList.memos.map(memo => (
+      memos.map(memo => (
         <Flex key={memo._id}>
           <Box>
             <MemoCardTitle>{memo.title}</MemoCardTitle>
