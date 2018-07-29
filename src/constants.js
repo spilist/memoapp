@@ -3,6 +3,7 @@ export default {
     memo: {
       list: '/memos',
       get: '/memos/:id',
+      update: '/memos/:id',
     },
   },
 };

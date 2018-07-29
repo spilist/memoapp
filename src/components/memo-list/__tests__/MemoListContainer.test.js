@@ -5,6 +5,7 @@ import Memo, { generateMemos } from '~/__mockdata__/Memo';
 import ConnectedMemoListContainer, {
   MemoListContainer,
 } from '../MemoListContainer';
+import sortUtils from '~/utils/SortUtils';
 import history from '~/history';
 
 jest.mock('../MemoList', () => props => (
@@ -84,9 +85,7 @@ describe('[MemoListContainer]', () => {
       const MemoList = component.find('#MemoList');
       expect(MemoList.prop('props').labelName).toBe('전체');
       expect(MemoList.prop('props').memos).toEqual(
-        state.memoList.memos.sort((a, b) => {
-          return a.updatedAt < b.updatedAt ? -1 : 1;
-        })
+        state.memoList.memos.sort(sortUtils.byUpdatedAt)
       );
     });
   });

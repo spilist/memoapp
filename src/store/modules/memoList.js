@@ -5,9 +5,17 @@ import * as api from '~/api';
 
 export const LIST_ALL_MEMOS = 'memoList/LIST_ALL_MEMOS';
 export const OPEN_MEMO = 'memoList/OPEN_MEMO';
+export const UPDATE_MEMO = 'memoList/UPDATE_MEMO';
 
 export const listAllMemos = createAction(LIST_ALL_MEMOS, () => api.listMemos());
 export const openMemo = createAction(OPEN_MEMO, memoId => api.getMemo(memoId));
+export const updateMemo = createAction(UPDATE_MEMO, params =>
+  api.updateMemo({
+    id: params.id,
+    title: params.title,
+    content: params.content,
+  })
+);
 
 export const Memo = Record({
   _id: '',
@@ -24,6 +32,24 @@ const initialState = Record({
 
 export default handleActions(
   {
+    ...pender({
+      type: UPDATE_MEMO,
+      onSuccess: (state, { payload: response }) => {
+        const opened = Memo(response.data);
+        const index = state.memos.findIndex(memo => memo._id === opened._id);
+        const memos =
+          index === -1
+            ? state.memos.push(opened)
+            : state.memos.set(index, opened);
+
+        return state.merge(
+          Map({
+            memos: memos,
+            openedMemo: opened,
+          })
+        );
+      },
+    }),
     ...pender({
       type: LIST_ALL_MEMOS,
       onSuccess: (state, { payload: response }) => {
