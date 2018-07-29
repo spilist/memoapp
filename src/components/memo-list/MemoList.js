@@ -173,9 +173,19 @@ export default class MemoList extends Component {
   renderList = () => {
     const { memos, label, openedMemo } = this.props;
     const { checkedMemos } = this.state;
+    let labelPrefix;
+    if (label === 'all') {
+      labelPrefix = '';
+    } else if (label === 'untagged') {
+      labelPrefix = '미분류된 ';
+    } else {
+      labelPrefix = `${label} 라벨에 `;
+    }
+
     return (
       <AntList
         itemLayout="horizontal"
+        locale={{ emptyText: `${labelPrefix}메모가 없습니다.` }}
         dataSource={memos}
         renderItem={item => (
           <AntListItem
