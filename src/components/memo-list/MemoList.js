@@ -44,7 +44,7 @@ const MemoListHeaderTitle = styled(Link)`
 const AntListItem = styled(AntList.Item)`
   flex-direction: row-reverse;
   padding-left: 0.5rem;
-  cursor: pointer;
+  cursor: ${props => props.clickable && 'pointer'};
   transition: background-color 0.3s ease;
   background-color: ${props => {
     if (props.checked) {
@@ -55,7 +55,8 @@ const AntListItem = styled(AntList.Item)`
   }};
 
   &:hover {
-    background-color: ${props => !props.checked && !props.opened && oc.orange1};
+    background-color: ${props =>
+      props.clickable && !props.checked && !props.opened && oc.orange1};
   }
 
   .ant-list-item-content {
@@ -201,6 +202,7 @@ export default class MemoList extends Component {
           renderItem={item => (
             <AntListItem
               checked={checkedMemos.includes(item)}
+              clickable={checkedMemos.size === 0 ? 'true' : undefined}
               opened={
                 checkedMemos.size === 0 &&
                 openedMemo &&
@@ -208,11 +210,14 @@ export default class MemoList extends Component {
                   ? 'true'
                   : undefined
               }
-              onClick={() =>
+              onClick={() => {
+                if (checkedMemos.size > 0) {
+                  return;
+                }
                 history.push({
                   pathname: `/${label}/${textUtils.slug(item)}`,
-                })
-              }
+                });
+              }}
             >
               <Checkbox
                 checked={checkedMemos.includes(item)}
