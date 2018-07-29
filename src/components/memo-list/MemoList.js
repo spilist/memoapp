@@ -199,8 +199,6 @@ export default class MemoList extends Component {
     let labelPrefix;
     if (label === 'all') {
       labelPrefix = '';
-    } else if (label === 'untagged') {
-      labelPrefix = '미분류된 ';
     } else {
       labelPrefix = `${label} 라벨에 `;
     }

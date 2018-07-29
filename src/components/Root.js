@@ -33,10 +33,6 @@ export class Root extends Component {
               render={props => <MemoListcontainer {...props} label="all" />}
             />
             <Route
-              path="/untagged"
-              render={props => <MemoListcontainer {...props} label="none" />}
-            />
-            <Route
               path="/:labelSlug"
               render={props => {
                 const { labelSlug } = props.match.params;

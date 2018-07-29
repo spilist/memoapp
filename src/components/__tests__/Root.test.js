@@ -68,18 +68,6 @@ describe('[Root]', () => {
     });
   });
 
-  describe('when path is /untagged', () => {
-    beforeEach(() => {
-      path = '/untagged';
-    });
-
-    it('renders MemoListContainer with label="none" prop', () => {
-      component = render();
-      const container = component.find('#MemoListContainer');
-      expect(container.prop('props').label).toBe('none');
-    });
-  });
-
   describe('when path is /:labelSlug', () => {
     it('renders MemoListContainer with label=":labelId" prop when path is in correct form', () => {
       const mongoId = utils.mongoObjectId();
