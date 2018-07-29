@@ -9,6 +9,7 @@ import timeUtils from '~/utils/TimeUtils';
 import textUtils from '~/utils/TextUtils';
 import history from '~/history';
 import Memo from '../memo/Memo';
+import CheckedMemos from '../checked-memos/CheckedMemos';
 
 const Container = styled.div`
   display: flex;
@@ -140,6 +141,15 @@ export default class MemoList extends Component {
     });
   };
 
+  deleteAllCallback = () => {
+    const { label } = this.props;
+    this.setState({ checkedMemos: getState(this.props).checkedMemos }, () =>
+      history.replace({
+        pathname: `/${label}`,
+      })
+    );
+  };
+
   renderHeader = () => {
     const { label, labelName, memos } = this.props;
     const { expanded } = this.state;
@@ -192,7 +202,11 @@ export default class MemoList extends Component {
             <AntListItem
               checked={checkedMemos.includes(item)}
               opened={
-                openedMemo && openedMemo._id === item._id ? 'true' : undefined
+                checkedMemos.size === 0 &&
+                openedMemo &&
+                openedMemo._id === item._id
+                  ? 'true'
+                  : undefined
               }
               onClick={() =>
                 history.push({
@@ -229,14 +243,24 @@ export default class MemoList extends Component {
 
   render() {
     const { label, openedMemo, openingMemo, MemoListActions } = this.props;
+    const { checkedMemos } = this.state;
+
     return (
       <Container>
         <MemoListWrapper>
           {this.renderHeader()}
           {this.renderList()}
         </MemoListWrapper>
+        {checkedMemos.size > 0 && (
+          <CheckedMemos
+            memos={checkedMemos}
+            actions={MemoListActions}
+            deleteAllCallback={this.deleteAllCallback}
+          />
+        )}
         {openedMemo && (
           <Memo
+            hidden={checkedMemos.size > 0}
             label={label}
             memo={openedMemo}
             loading={openingMemo}
