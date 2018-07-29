@@ -17,7 +17,6 @@ const Header = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 0.5rem 0;
-  flex: 0 0 3rem;
 `;
 
 const HeaderTitle = styled.div`

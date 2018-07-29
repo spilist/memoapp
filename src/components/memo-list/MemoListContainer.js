@@ -65,17 +65,14 @@ export class MemoListContainer extends Component {
 
     if (match && match.params && match.params.memoSlug) {
       const { memoSlug } = match.params;
-      if (memoSlug === 'new') {
-      } else {
-        const memoId = textUtils.getId(memoSlug);
-        if (!memoId) {
-          history.replace({
-            pathname: `/${label}`,
-          });
-          return;
-        }
-        MemoListActions.openMemo(memoId);
+      const memoId = textUtils.getId(memoSlug);
+      if (!memoId) {
+        history.replace({
+          pathname: `/${label}`,
+        });
+        return;
       }
+      MemoListActions.openMemo(memoId);
     }
   };
 
