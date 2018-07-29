@@ -15,33 +15,39 @@ export class Root extends Component {
 
   render() {
     const { loading } = this.props;
-    return loading !== false ? (
-      <Spinner />
-    ) : (
+    return (
       <div className="root">
-        <Switch>
-          <Route exact path="/" render={() => <Redirect replace to="/all" />} />
-          <Route
-            path="/all"
-            render={props => <MemoListcontainer {...props} label="all" />}
-          />
-          <Route
-            path="/untagged"
-            render={props => <MemoListcontainer {...props} label="none" />}
-          />
-          <Route
-            path="/:labelSlug"
-            render={props => {
-              const { labelSlug } = props.match.params;
-              const id = textUtils.getId(labelSlug);
-              return id ? (
-                <MemoListcontainer {...props} label={id} />
-              ) : (
-                <Redirect replace to="/all" />
-              );
-            }}
-          />
-        </Switch>
+        {loading !== false ? (
+          <Spinner />
+        ) : (
+          <Switch>
+            <Route
+              exact
+              path="/"
+              render={() => <Redirect replace to="/all" />}
+            />
+            <Route
+              path="/all"
+              render={props => <MemoListcontainer {...props} label="all" />}
+            />
+            <Route
+              path="/untagged"
+              render={props => <MemoListcontainer {...props} label="none" />}
+            />
+            <Route
+              path="/:labelSlug"
+              render={props => {
+                const { labelSlug } = props.match.params;
+                const id = textUtils.getId(labelSlug);
+                return id ? (
+                  <MemoListcontainer {...props} label={id} />
+                ) : (
+                  <Redirect replace to="/all" />
+                );
+              }}
+            />
+          </Switch>
+        )}
       </div>
     );
   }

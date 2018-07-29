@@ -17,7 +17,7 @@ class Spinner extends React.Component {
 
   render() {
     return (
-      <Flex justify="center" pt="2rem">
+      <Flex justify="center" align="center" auto style={{ height: '100%' }}>
         <FadingCircle size={this.props.size} color={this.props.color} />
       </Flex>
     );
