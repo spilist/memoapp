@@ -18,7 +18,11 @@ let path, store, ownProps, simpleProps, state, component;
 beforeEach(() => {
   path = '/all';
   ownProps = {};
-  simpleProps = {};
+  simpleProps = {
+    MemoListActions: {
+      openMemo: jest.fn(),
+    },
+  };
   state = {
     memoList: {
       memos: List(),
@@ -60,6 +64,7 @@ describe('[MemoListContainer]', () => {
       it('redirects to the first memo if memos exist', () => {
         path = '/all';
         simpleProps = {
+          ...simpleProps,
           label: 'all',
           memos: List([
             new Memo({

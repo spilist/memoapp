@@ -11,6 +11,7 @@ export default {
       list: '/labels',
       create: '/labels',
       addMemos: '/labels/:id/memos',
+      deleteMemos: '/labels/:id/memos',
     },
   },
 };

@@ -44,6 +44,16 @@ export function addMemosToLabel(params) {
   );
 }
 
+export function deleteMemosFromLabel(params) {
+  return del(
+    END_POINTS.label.deleteMemos,
+    { id: params.id },
+    {
+      memoIds: params.memoIds,
+    }
+  );
+}
+
 export function getMemo(memoId) {
   return get(END_POINTS.memo.get, {
     id: memoId,
