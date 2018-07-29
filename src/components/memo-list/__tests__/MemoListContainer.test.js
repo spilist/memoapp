@@ -1,4 +1,5 @@
 import React from 'react';
+import { List } from 'immutable';
 import utils from '~/utils/TestUtils';
 import { generateMemos } from '~/__mockdata__/Memo';
 import ConnectedMemoListContainer from '../MemoListContainer';
@@ -15,7 +16,7 @@ beforeEach(() => {
   ownProps = {};
   state = {
     memoList: {
-      memos: generateMemos(15),
+      memos: List(generateMemos(15)),
     },
     pender: {
       pending: {},
@@ -38,11 +39,15 @@ describe('[MemoListContainer]', () => {
       ownProps.label = 'all';
     });
 
-    it('provides labelName as "전체" and memos as whole memos to MemoList component', () => {
+    it('provides labelName as "전체" and memos as whole memos, which is reverse sorted by updatedAt to MemoList component', () => {
       component = render();
       const MemoList = component.find('#MemoList');
       expect(MemoList.prop('props').labelName).toBe('전체');
-      expect(MemoList.prop('props').memos).toEqual(state.memoList.memos);
+      expect(MemoList.prop('props').memos).toEqual(
+        state.memoList.memos.sort((a, b) => {
+          return a.updatedAt < b.updatedAt ? -1 : 1;
+        })
+      );
     });
   });
 });

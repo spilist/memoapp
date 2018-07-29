@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import sortUtils from '~/utils/SortUtils';
 import * as memoListActions from '~/store/modules/memoList';
 import MemoList from './MemoList';
 
@@ -21,7 +22,7 @@ const memos = (label, memoListState) => {
   switch (label) {
     case 'all':
     default:
-      return memoListState.memos;
+      return memoListState.memos.sort(sortUtils.byUpdatedAt);
   }
 };
 
