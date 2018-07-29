@@ -345,7 +345,10 @@ export default class MemoList extends Component {
         {checkedMemos.size > 0 && (
           <CheckedMemos
             memos={checkedMemos}
-            actions={MemoListActions}
+            label={label}
+            labels={labels}
+            MemoListActions={MemoListActions}
+            LabelListActions={LabelListActions}
             deleteAllCallback={this.deleteAllCallback}
           />
         )}
@@ -353,9 +356,11 @@ export default class MemoList extends Component {
           <Memo
             hidden={checkedMemos.size > 0}
             label={label}
+            labels={labels}
             memo={openedMemo}
             loading={openingMemo}
-            actions={MemoListActions}
+            MemoListActions={MemoListActions}
+            LabelListActions={LabelListActions}
           />
         )}
       </Container>

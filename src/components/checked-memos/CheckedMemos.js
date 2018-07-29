@@ -73,11 +73,28 @@ const Content = styled.div`
 
 export default class CheckedMemos extends Component {
   deleteAllMemos = () => {
-    const { actions, memos, deleteAllCallback } = this.props;
+    const {
+      LabelListActions,
+      MemoListActions,
+      memos,
+      label,
+      deleteAllCallback,
+    } = this.props;
     if (confirm('선택한 메모를 모두 삭제하시겠습니까?')) {
-      actions
-        .deleteMemos(memos.map(memo => ({ id: memo._id })))
-        .then(deleteAllCallback);
+      if (label._id) {
+        MemoListActions.deleteMemos(memos.map(memo => ({ id: memo._id }))).then(
+          val => {
+            LabelListActions.deleteMemosFromLabel(
+              label._id,
+              memos.map(memo => memo._id)
+            ).then(deleteAllCallback);
+          }
+        );
+      } else {
+        MemoListActions.deleteMemos(memos.map(memo => ({ id: memo._id }))).then(
+          deleteAllCallback
+        );
+      }
     }
   };
 
