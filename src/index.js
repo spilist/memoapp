@@ -4,6 +4,7 @@ import 'moment/locale/ko';
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 import { Route, Router } from 'react-router-dom';
+import { injectGlobal } from 'styled-components';
 import FontFaceObserver from 'fontfaceobserver';
 import history from './history';
 import store from './store';
@@ -12,6 +13,36 @@ import { ScrollToTop } from './components/common';
 import registerServiceWorker from './registerServiceWorker';
 
 moment.locale('ko');
+
+/* eslint-disable */
+injectGlobal`
+  html,
+  body,
+  #root,
+  .root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Apple SD Gothic Neo', Dotum, Arial, sans-serif;
+    background: color('white');
+    box-sizing: border-box;
+    font-size: rem(14px);
+    min-height: 100vh;
+  }
+
+  body[spoqa-han-sans-loaded] {
+    font-family: 'Spoqa Han Sans', 'Apple SD Gothic Neo', Dotum, Arial, sans-serif;
+  }
+
+  * {
+    box-sizing: inherit;
+    -webkit-overflow-scrolling: touch;
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+  }
+`;
+/* eslint-enable */
 
 new FontFaceObserver('Spoqa Han Sans').load(null, 5 * 1000).then(() => {
   document.body.setAttribute('spoqa-han-sans-loaded', true);
