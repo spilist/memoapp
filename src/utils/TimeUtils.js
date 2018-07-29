@@ -31,7 +31,7 @@ const format = time => {
   const momentValue = moment(time);
   return (
     <time title={_getAbsolute(momentValue)}>
-      <b>{_representedValue(momentValue)}</b>
+      {_representedValue(momentValue)}
     </time>
   );
 };

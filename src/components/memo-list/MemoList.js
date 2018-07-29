@@ -13,12 +13,14 @@ import Memo from '../memo/Memo';
 const Container = styled.div`
   display: flex;
   height: 100%;
+  overflow: hidden;
 `;
 
 const MemoListWrapper = styled.div`
   padding: 0.5rem 1rem;
   flex: 0 0 14rem;
   border-right: 2px solid ${oc.gray6};
+  overflow: auto;
 `;
 
 const IconButton = styled.div`
@@ -68,10 +70,16 @@ const AntListItem = styled(AntList.Item)`
     max-width: 100%;
   }
 
-  .ant-list-item-meta-description {
-    white-space: pre;
+  .ant-list-item-meta-description,
+  .ant-list-item-meta-title {
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .ant-list-item-meta-title {
+    font-weight: bold;
+    font-size: 16px;
   }
 `;
 
@@ -181,7 +189,7 @@ export default class MemoList extends Component {
               title={item.title}
               description={
                 <span>
-                  {timeUtils.format(item.updatedAt)} {item.content}
+                  {timeUtils.format(item.updatedAt)} | {item.content}
                 </span>
               }
             />
