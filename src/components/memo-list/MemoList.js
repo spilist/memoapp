@@ -1,47 +1,63 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { List } from 'immutable';
 import styled from 'styled-components';
 import oc from 'open-color-js';
 import { Flex, Box } from 'reflexbox';
-import { Checkbox } from 'antd';
+import { Checkbox, List as AntList } from 'antd';
 import { Spinner } from '../common';
 import timeUtils from '~/utils/TimeUtils';
 
-const MemoHeaderListIcon = styled.div`
-  color: ${oc.gray6};
-`;
-
-const MemoHeaderTitle = styled.div`
-  font-weight: bold;
-`;
-
-const MemoHeaderPlusIcon = styled.div`
+const Container = styled.div`
   display: flex;
+  height: 100%;
 `;
 
-const MemoCard = styled.div`
-  padding: 8px;
+const MemoListWrapper = styled.div`
+  padding: 0.5rem 1rem;
+  flex: 0 0 14rem;
+  border-right: 2px solid ${oc.gray6};
 `;
 
-const MemoCardTitle = styled.div`
-  font-size: 1rem;
+const IconButton = styled.div`
+  color: ${oc.gray8};
+  padding: 2px 4px;
+  cursor: pointer;
+  background-color: ${props => (props.active ? oc.gray2 : 'transparent')};
+  &:hover {
+    color: ${oc.gray6};
+    background-color: ${props => (props.active ? oc.gray2 : oc.gray1)};
+  }
 `;
 
-const MemoCardContent = styled.div`
-  font-size: 12px;
+const MemoListHeaderTitle = styled.div`
+  font-size: 16px;
+  font-weight: bold;
+  margin-left: 4px;
 `;
 
-const CheckboxWrapper = styled.div`
-  font-size: 12px;
+const AntListItem = styled(AntList.Item)`
+  flex-direction: row-reverse;
+  padding-left: 0.5rem;
+  background-color: ${props => props.checked && oc.indigo1};
+  cursor: pointer;
+
+  &:hover {
+    background-color: ${props => !props.checked && oc.teal1};
+  }
+
+  .ant-list-item-content {
+    justify-content: flex-start;
+    flex: 0 0 2rem;
+  }
 `;
 
-const initialState = {
+const initialState = props => ({
   expanded: false,
   checkedMemos: List(),
-};
+});
 
 export default class MemoList extends Component {
-  state = initialState;
+  state = initialState(this.props);
 
   toggleExpansion = () => {
     this.setState({ expanded: !this.state.expanded });
@@ -59,7 +75,7 @@ export default class MemoList extends Component {
 
   toggleCheckAll = () => {
     if (this.isCheckedAll()) {
-      this.setState({ checkedMemos: initialState.checkedMemos });
+      this.setState({ checkedMemos: initialState(this.props).checkedMemos });
     } else {
       this.setState({
         checkedMemos: this.props.memos,
@@ -85,28 +101,31 @@ export default class MemoList extends Component {
 
   renderHeader = () => {
     const { labelName, memos, loading } = this.props;
+    const { expanded } = this.state;
     const size = loading ? '...' : memos.size;
     return (
       <Box>
-        <Flex justify="space-between">
+        <Flex justify="space-between" mb="1rem" align="center">
           <Flex>
-            <MemoHeaderListIcon onClick={this.toggleExpansion}>
+            <IconButton onClick={this.toggleExpansion} active={expanded}>
               <i className="fa fa-list" />
-            </MemoHeaderListIcon>
-            <MemoHeaderTitle>{`${labelName} (${size})`}</MemoHeaderTitle>
+            </IconButton>
+            <MemoListHeaderTitle>
+              {`${labelName} (${size})`}
+            </MemoListHeaderTitle>
           </Flex>
-          <MemoHeaderPlusIcon>
+          <IconButton>
             <i className="fa fa-plus" />
-          </MemoHeaderPlusIcon>
+          </IconButton>
         </Flex>
-        <CheckboxWrapper>
+        <Box pl="0.5rem">
           <Checkbox
             checked={this.isCheckedAll()}
             onChange={this.toggleCheckAll}
           >
             {this.isCheckedAll() ? '모두 선택 해제' : '모두 선택'}
           </Checkbox>
-        </CheckboxWrapper>
+        </Box>
       </Box>
     );
   };
@@ -117,32 +136,37 @@ export default class MemoList extends Component {
     return loading ? (
       <Spinner />
     ) : (
-      memos.map(memo => (
-        <Flex key={memo._id}>
-          <CheckboxWrapper>
+      <AntList
+        itemLayout="horizontal"
+        dataSource={memos}
+        renderItem={item => (
+          <AntListItem checked={checkedMemos.includes(item)}>
             <Checkbox
-              checked={checkedMemos.includes(memo)}
-              onChange={() => this.toggleCheckMemo(memo)}
+              checked={checkedMemos.includes(item)}
+              onChange={() => this.toggleCheckMemo(item)}
             />
-          </CheckboxWrapper>
-          <MemoCard>
-            <MemoCardTitle>{memo.title}</MemoCardTitle>
-            <MemoCardContent>
-              {timeUtils.format(memo.updatedAt)}
-              {memo.content}
-            </MemoCardContent>
-          </MemoCard>
-        </Flex>
-      ))
+            <AntList.Item.Meta
+              title={item.title}
+              description={
+                <span>
+                  {timeUtils.format(item.updatedAt)} {item.content}
+                </span>
+              }
+            />
+          </AntListItem>
+        )}
+      />
     );
   };
 
   render() {
     return (
-      <Box p="1rem">
-        {this.renderHeader()}
-        {this.renderList()}
-      </Box>
+      <Container>
+        <MemoListWrapper>
+          {this.renderHeader()}
+          {this.renderList()}
+        </MemoListWrapper>
+      </Container>
     );
   }
 }
