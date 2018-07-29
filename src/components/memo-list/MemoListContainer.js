@@ -56,7 +56,7 @@ export class MemoListContainer extends Component {
   };
 
   openMemo = props => {
-    const { location, MemoListActions } = props;
+    const { location, MemoListActions, label } = props;
     const match = matchPath(location.pathname, {
       path: '/:labelSlug/:memoSlug',
       exact: true,
@@ -68,6 +68,9 @@ export class MemoListContainer extends Component {
       } else {
         const memoId = textUtils.getId(memoSlug);
         if (!memoId) {
+          history.replace({
+            pathname: `/${label}`,
+          });
           return;
         }
         MemoListActions.openMemo(memoId);

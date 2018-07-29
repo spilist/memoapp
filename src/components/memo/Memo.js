@@ -1,15 +1,13 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import styled from 'styled-components';
 import oc from 'open-color-js';
-import { Flex, Box } from 'reflexbox';
 import { Spinner } from '../common';
 import { Input, Button } from 'antd';
 import timeUtils from '~/utils/TimeUtils';
-import textUtils from '~/utils/TextUtils';
 import history from '~/history';
 
 const Container = styled.div`
-  display: flex;
+  display: ${props => (props.hidden ? 'none' : 'flex')};
   flex-direction: column;
   width: 100%;
   padding: 0.5rem 1rem;
@@ -99,7 +97,9 @@ export default class Memo extends Component {
 
   deleteMemo = () => {
     const { actions, memo, label } = this.props;
-    actions.deleteMemo(memo._id).then(val => history.replace(`/${label}`));
+    if (confirm(`${memo.title}\n이 메모를 삭제하시겠습니까?`)) {
+      actions.deleteMemo(memo._id).then(val => history.replace(`/${label}`));
+    }
   };
 
   renderHeader = () => {
@@ -149,11 +149,11 @@ export default class Memo extends Component {
   };
 
   render() {
-    const { loading } = this.props;
+    const { loading, hidden } = this.props;
     return loading ? (
       <Spinner />
     ) : (
-      <Container>
+      <Container hidden={hidden}>
         {this.renderHeader()}
         {this.renderContent()}
       </Container>
