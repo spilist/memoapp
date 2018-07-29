@@ -1,8 +1,16 @@
 import React, { Component } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import * as memoListActions from '~/store/modules/memoList';
 import MemoListcontainer from './memo-list/MemoListContainer';
 
-class Root extends Component {
+export class Root extends Component {
+  componentDidMount() {
+    const { MemoListActions } = this.props;
+    MemoListActions.listAllMemos();
+  }
+
   render() {
     return (
       <div className="root">
@@ -17,11 +25,11 @@ class Root extends Component {
             path="/:labelSlug"
             render={({ match }) => {
               const { labelSlug } = match.params;
-              const labelId = parseInt(labelSlug.split('-').pop());
-              return isNaN(labelId) ? (
-                <Redirect replace to="/all" />
+              const isLabelIdExist = labelSlug.indexOf('--') !== -1;
+              return isLabelIdExist ? (
+                <MemoListcontainer label={labelSlug.split('--').pop()} />
               ) : (
-                <MemoListcontainer label={labelId} />
+                <Redirect replace to="/all" />
               );
             }}
           />
@@ -31,4 +39,9 @@ class Root extends Component {
   }
 }
 
-export default Root;
+export default connect(
+  () => ({}),
+  dispatch => ({
+    MemoListActions: bindActionCreators(memoListActions, dispatch),
+  })
+)(Root);

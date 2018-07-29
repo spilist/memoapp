@@ -1,26 +1,28 @@
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
 
-var routes = require('./routes/index');
-var labels = require('./routes/labels');
-var memos = require('./routes/memos');
+const routes = require('./routes/index');
+const labels = require('./routes/labels');
+const memos = require('./routes/memos');
 
 // load mongoose package
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 // Use native Node promises
 mongoose.Promise = global.Promise;
 
 // connect to MongoDB
-mongoose.connect('mongodb://localhost/drama-memoapp-api')
-  .then(() =>  console.log('connection succesful'))
-  .catch((err) => console.error(err));
+mongoose
+  .connect('mongodb://localhost/drama-memoapp-api')
+  .then(() => console.log('connection succesful'))
+  .catch(err => console.error(err));
 
-var app = express();
+const app = express();
+app.use(cors());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -54,7 +56,7 @@ if (app.get('env') === 'development') {
     res.status(err.status || 500);
     res.render('error', {
       message: err.message,
-      error: err
+      error: err,
     });
   });
 }
@@ -65,9 +67,8 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error', {
     message: err.message,
-    error: {}
+    error: {},
   });
 });
-
 
 module.exports = app;

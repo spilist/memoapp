@@ -1,16 +1,42 @@
+import React from 'react';
+import moxios from 'moxios';
 import utils from '~/utils/TestUtils';
-import Root from '../Root';
+import ConnectedRoot, { Root } from '../Root';
+import store from '~/store';
 
-let path, props, component;
+jest.mock('../memo-list/MemoListContainer', () => props => (
+  <div id="MemoListContainer" props={props}>
+    MemoListContainer
+  </div>
+));
+
+let path, ownProps, simpleProps, component;
 beforeEach(() => {
   path = '/';
-  props = {};
+  ownProps = {};
+  simpleProps = {
+    MemoListActions: {
+      listAllMemos: jest.fn(),
+    },
+  };
+  moxios.install();
+});
+
+afterEach(() => {
+  moxios.uninstall();
 });
 
 const render = () =>
-  utils.renderWithRouter({
+  utils.renderConnected({
     path,
-    props,
+    ownProps,
+    store,
+    ConnectedComponent: ConnectedRoot,
+  });
+
+const renderSimple = () =>
+  utils.renderSimple({
+    props: simpleProps,
     Component: Root,
   });
 
@@ -31,8 +57,8 @@ describe('[Root]', () => {
 
     it('renders MemoListContainer with label="all" prop', () => {
       component = render();
-      const container = component.find('MemoListContainer');
-      expect(container.prop('label')).toBe('all');
+      const container = component.find('#MemoListContainer');
+      expect(container.prop('props').label).toBe('all');
     });
   });
 
@@ -43,31 +69,34 @@ describe('[Root]', () => {
 
     it('renders MemoListContainer with label="none" prop', () => {
       component = render();
-      const container = component.find('MemoListContainer');
-      expect(container.prop('label')).toBe('none');
+      const container = component.find('#MemoListContainer');
+      expect(container.prop('props').label).toBe('none');
     });
   });
 
   describe('when path is /:labelSlug', () => {
     it('renders MemoListContainer with label=":labelId" prop when path is in correct form', () => {
-      path = '/some-label-slug-17';
+      const mongoId = utils.mongoObjectId();
+      path = `/some-label-slug--${mongoId}`;
       component = render();
-      const container = component.find('MemoListContainer');
-      expect(container.prop('label')).toBe(17);
+      const container = component.find('#MemoListContainer');
+      expect(container.prop('props').label).toBe(mongoId);
     });
 
     it('redirects to /all when path is not in correct form', () => {
-      path = '/some-label-slug-xx';
+      const mongoId = utils.mongoObjectId();
+      path = `/some-label-slug-${mongoId}`;
       component = render();
       let redirect = component.find('.Redirect');
       expect(redirect.prop('to')).toBe('/all');
       expect(redirect.prop('replace')).toBe('true');
+    });
+  });
 
-      path = '/some-label-slug-x34x';
-      component = render();
-      redirect = component.find('.Redirect');
-      expect(redirect.prop('to')).toBe('/all');
-      expect(redirect.prop('replace')).toBe('true');
+  describe('when mounted', () => {
+    it('calls MemoListActions.listAllMemos()', () => {
+      renderSimple();
+      expect(simpleProps.MemoListActions.listAllMemos).toBeCalledWith();
     });
   });
 });
