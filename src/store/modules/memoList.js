@@ -4,18 +4,20 @@ import { pender } from 'redux-pender';
 import * as api from '~/api';
 
 export const LIST_ALL_MEMOS = 'memoList/LIST_ALL_MEMOS';
+export const CREATE_NEW_MEMO = 'memoList/CREATE_NEW_MEMO';
 export const OPEN_MEMO = 'memoList/OPEN_MEMO';
 export const UPDATE_MEMO = 'memoList/UPDATE_MEMO';
 export const DELETE_MEMO = 'memoList/DELETE_MEMO';
 
 export const listAllMemos = createAction(LIST_ALL_MEMOS, () => api.listMemos());
+export const createNewMemo = createAction(CREATE_NEW_MEMO, () =>
+  api.createMemo({
+    title: '새 메모',
+  })
+);
 export const openMemo = createAction(OPEN_MEMO, memoId => memoId);
 export const updateMemo = createAction(UPDATE_MEMO, params =>
-  api.updateMemo({
-    id: params.id,
-    title: params.title,
-    content: params.content,
-  })
+  api.updateMemo(params)
 );
 export const deleteMemo = createAction(DELETE_MEMO, memoId =>
   api.deleteMemo(memoId)
@@ -42,6 +44,17 @@ export default handleActions(
         state.memos.find(memo => memo._id === memoId)
       );
     },
+    ...pender({
+      type: CREATE_NEW_MEMO,
+      onSuccess: (state, { payload: response }) => {
+        const created = Memo(response.data);
+        return state.merge(
+          Map({
+            memos: state.memos.push(created),
+          })
+        );
+      },
+    }),
     ...pender({
       type: DELETE_MEMO,
       onSuccess: (state, { payload: response }) => {

@@ -131,6 +131,15 @@ export default class MemoList extends Component {
     }
   };
 
+  addMemo = () => {
+    const { label, MemoListActions } = this.props;
+    MemoListActions.createNewMemo().then(val => {
+      history.push({
+        pathname: `/${label}/${textUtils.slug(val.data)}`,
+      });
+    });
+  };
+
   renderHeader = () => {
     const { label, labelName, memos } = this.props;
     const { expanded } = this.state;
@@ -145,7 +154,7 @@ export default class MemoList extends Component {
               {`${labelName} (${memos.size})`}
             </MemoListHeaderTitle>
           </Flex>
-          <IconButton>
+          <IconButton onClick={this.addMemo}>
             <i className="fa fa-plus" />
           </IconButton>
         </Flex>

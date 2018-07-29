@@ -7,6 +7,17 @@ export function listMemos() {
   return get(END_POINTS.memo.list);
 }
 
+export function createMemo(params) {
+  return post(
+    END_POINTS.memo.create,
+    {},
+    {
+      title: params.title,
+      content: params.content,
+    }
+  );
+}
+
 export function getMemo(memoId) {
   return get(END_POINTS.memo.get, {
     id: memoId,
