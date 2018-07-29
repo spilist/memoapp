@@ -26,8 +26,8 @@ export function generateMemos(num, props = {}) {
   return utils.range(num).map(id =>
     new Memo({
       _id: utils.mongoObjectId(),
-      updatedAt: faker.date.past(),
-      createdAt: faker.date.past(),
+      updatedAt: faker.date.past().toString(),
+      createdAt: faker.date.past().toString(),
       title: faker.lorem.words(),
       content: faker.lorem.text(),
       ...props,
