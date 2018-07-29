@@ -12,18 +12,23 @@ import history from '~/history';
 const getLabel = (labels, labelId) => {
   switch (labelId) {
     case 'all':
-    default:
       return {
         title: '전체',
       };
+    default:
+      return labels.find(l => l._id === labelId) || {};
   }
 };
 
-const getMemos = (memos, labelId) => {
+const getMemos = (memos, labels, labelId) => {
   switch (labelId) {
     case 'all':
-    default:
       return memos.sort(sortUtils.byUpdatedAt);
+    default:
+      const label = getLabel(labels, labelId);
+      return memos
+        .filter(memo => label.memoIds.includes(memo._id))
+        .sort(sortUtils.byUpdatedAt);
   }
 };
 
@@ -75,6 +80,8 @@ export class MemoListContainer extends Component {
         return;
       }
       MemoListActions.openMemo(memoId);
+    } else {
+      MemoListActions.openMemo(null);
     }
   };
 
@@ -87,7 +94,8 @@ export default connect(
   ({ memoList, labelList, pender }, { labelId }) => ({
     labels: labelList.labels,
     label: getLabel(labelList.labels, labelId),
-    memos: getMemos(memoList.memos, labelId),
+    memos: getMemos(memoList.memos, labelList.labels, labelId),
+    allMemosSize: memoList.memos.size,
     openedMemo: memoList.openedMemo,
     openingMemo: pender.pending[memoListActions.OPEN_MEMO],
   }),

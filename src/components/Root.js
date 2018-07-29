@@ -55,7 +55,8 @@ export default connect(
   ({ pender }, ownProps) => ({
     loading:
       ownProps.loading === undefined
-        ? pender.pending[memoListActions.LIST_ALL_MEMOS]
+        ? pender.pending[memoListActions.LIST_ALL_MEMOS] ||
+          pender.pending[labelListActions.LIST_ALL_LABELS]
         : ownProps.loading,
   }),
   dispatch => ({

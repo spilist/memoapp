@@ -9,6 +9,7 @@ export default {
     },
     label: {
       list: '/labels',
+      create: '/labels',
     },
   },
 };

@@ -17,6 +17,10 @@ const Container = styled.div`
   display: flex;
   height: 100%;
   overflow: hidden;
+
+  .ant-list-empty-text {
+    padding: 1rem 0.5rem;
+  }
 `;
 
 const MemoListWrapper = styled.div`
@@ -200,7 +204,7 @@ export default class MemoList extends Component {
     if (!label._id) {
       labelPrefix = '';
     } else {
-      labelPrefix = `${label.title} 라벨에 `;
+      labelPrefix = `라벨 [${label.title}]에 `;
     }
 
     return (
@@ -260,7 +264,7 @@ export default class MemoList extends Component {
     const {
       label,
       labels,
-      memos,
+      allMemosSize,
       openedMemo,
       openingMemo,
       MemoListActions,
@@ -274,7 +278,7 @@ export default class MemoList extends Component {
           <LabelList
             label={label}
             labels={labels}
-            allMemosSize={memos.size}
+            allMemosSize={allMemosSize}
             actions={LabelListActions}
           />
         )}

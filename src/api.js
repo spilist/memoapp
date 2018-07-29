@@ -24,6 +24,16 @@ export function createMemo(params) {
   );
 }
 
+export function createLabel(params) {
+  return post(
+    END_POINTS.label.create,
+    {},
+    {
+      title: params.title,
+    }
+  );
+}
+
 export function getMemo(memoId) {
   return get(END_POINTS.memo.get, {
     id: memoId,
