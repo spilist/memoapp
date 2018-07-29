@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { List } from 'immutable';
 import styled from 'styled-components';
 import oc from 'open-color-js';
 import { Flex, Box } from 'reflexbox';
-import { Checkbox, List as AntList } from 'antd';
+import { Checkbox, List as AntList, Button } from 'antd';
 import timeUtils from '~/utils/TimeUtils';
 import textUtils from '~/utils/TextUtils';
 import history from '~/history';
@@ -183,38 +183,47 @@ export default class MemoList extends Component {
     }
 
     return (
-      <AntList
-        itemLayout="horizontal"
-        locale={{ emptyText: `${labelPrefix}메모가 없습니다.` }}
-        dataSource={memos}
-        renderItem={item => (
-          <AntListItem
-            checked={checkedMemos.includes(item)}
-            opened={
-              openedMemo && openedMemo._id === item._id ? 'true' : undefined
-            }
-            onClick={() =>
-              history.push({
-                pathname: `/${label}/${textUtils.slug(item)}`,
-              })
-            }
-          >
-            <Checkbox
+      <Fragment>
+        <AntList
+          itemLayout="horizontal"
+          locale={{ emptyText: `${labelPrefix}메모가 없습니다.` }}
+          dataSource={memos}
+          renderItem={item => (
+            <AntListItem
               checked={checkedMemos.includes(item)}
-              onChange={() => this.toggleCheckMemo(item)}
-              onClick={e => e.stopPropagation()}
-            />
-            <AntList.Item.Meta
-              title={item.title}
-              description={
-                <span>
-                  {timeUtils.format(item.updatedAt)} | {item.content}
-                </span>
+              opened={
+                openedMemo && openedMemo._id === item._id ? 'true' : undefined
               }
-            />
-          </AntListItem>
+              onClick={() =>
+                history.push({
+                  pathname: `/${label}/${textUtils.slug(item)}`,
+                })
+              }
+            >
+              <Checkbox
+                checked={checkedMemos.includes(item)}
+                onChange={() => this.toggleCheckMemo(item)}
+                onClick={e => e.stopPropagation()}
+              />
+              <AntList.Item.Meta
+                title={item.title}
+                description={
+                  <span>
+                    {timeUtils.format(item.updatedAt)} | {item.content}
+                  </span>
+                }
+              />
+            </AntListItem>
+          )}
+        />
+        {memos.size === 0 && (
+          <Flex justify="center">
+            <Button type="primary" icon="plus" onClick={this.addMemo}>
+              새 메모 추가하기
+            </Button>
+          </Flex>
         )}
-      />
+      </Fragment>
     );
   };
 
