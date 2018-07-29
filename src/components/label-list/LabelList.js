@@ -1,10 +1,9 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { List } from 'immutable';
 import styled from 'styled-components';
 import oc from 'open-color-js';
-import { Flex, Box } from 'reflexbox';
-import { Checkbox, List as AntList, Button } from 'antd';
+import { Flex } from 'reflexbox';
+import { List as AntList } from 'antd';
 import textUtils from '~/utils/TextUtils';
 import history from '~/history';
 

@@ -5,7 +5,7 @@ import { List } from 'immutable';
 import styled from 'styled-components';
 import oc from 'open-color-js';
 import { Flex, Box } from 'reflexbox';
-import { Checkbox, List as AntList, Button } from 'antd';
+import { Checkbox, List as AntList, Button, Tag } from 'antd';
 import timeUtils from '~/utils/TimeUtils';
 import textUtils from '~/utils/TextUtils';
 import history from '~/history';
@@ -79,7 +79,6 @@ const AntListItem = styled(AntList.Item)`
     max-width: 100%;
   }
 
-  .ant-list-item-meta-description,
   .ant-list-item-meta-title {
     white-space: nowrap;
     overflow: hidden;
@@ -89,6 +88,27 @@ const AntListItem = styled(AntList.Item)`
   .ant-list-item-meta-title {
     font-weight: bold;
     font-size: 16px;
+  }
+`;
+
+const ItemContent = styled.div`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const ItemLabels = styled.div`
+  padding-top: 4px;
+`;
+
+const AntTag = styled(Tag)`
+  &.ant-tag {
+    font-size: 10px;
+    background-color: ${props => props.active && oc.cyan2};
+
+    &:hover {
+      background-color: ${props => !props.active && oc.blue2};
+    }
   }
 `;
 
@@ -207,9 +227,69 @@ export default class MemoList extends Component {
     );
   };
 
-  renderList = () => {
-    const { memos, label, openedMemo } = this.props;
+  renderListItem = item => {
+    const { label, labels, openedMemo } = this.props;
     const { checkedMemos } = this.state;
+    const itemLabels = labels.filter(lab => lab.memoIds.includes(item._id));
+
+    return (
+      <AntListItem
+        checked={checkedMemos.includes(item)}
+        clickable={checkedMemos.size === 0 ? 'true' : undefined}
+        opened={
+          checkedMemos.size === 0 && openedMemo && openedMemo._id === item._id
+            ? 'true'
+            : undefined
+        }
+        onClick={() => {
+          if (checkedMemos.size > 0) {
+            return;
+          }
+          history.push({
+            pathname: `/${textUtils.slug(label)}/${textUtils.slug(item)}`,
+          });
+        }}
+      >
+        <Checkbox
+          checked={checkedMemos.includes(item)}
+          onChange={() => this.toggleCheckMemo(item)}
+          onClick={e => e.stopPropagation()}
+        />
+        <AntList.Item.Meta
+          title={item.title}
+          description={
+            <Fragment>
+              <ItemContent>
+                {timeUtils.format(item.updatedAt)} | {item.content}
+              </ItemContent>
+              {itemLabels.size > 0 && (
+                <ItemLabels>
+                  {itemLabels.map(lab => (
+                    <AntTag
+                      key={lab._id}
+                      color="geekblue"
+                      active={label._id === lab._id ? 'true' : undefined}
+                      onClick={e => {
+                        e.stopPropagation();
+                        history.push({
+                          pathname: `/${textUtils.slug(lab)}`,
+                        });
+                      }}
+                    >
+                      {textUtils.truncate(lab.title, 17)}
+                    </AntTag>
+                  ))}
+                </ItemLabels>
+              )}
+            </Fragment>
+          }
+        />
+      </AntListItem>
+    );
+  };
+
+  renderList = () => {
+    const { memos, label } = this.props;
     let labelPrefix;
     if (!label._id) {
       labelPrefix = '';
@@ -223,41 +303,7 @@ export default class MemoList extends Component {
           itemLayout="horizontal"
           locale={{ emptyText: `${labelPrefix}메모가 없습니다.` }}
           dataSource={memos}
-          renderItem={item => (
-            <AntListItem
-              checked={checkedMemos.includes(item)}
-              clickable={checkedMemos.size === 0 ? 'true' : undefined}
-              opened={
-                checkedMemos.size === 0 &&
-                openedMemo &&
-                openedMemo._id === item._id
-                  ? 'true'
-                  : undefined
-              }
-              onClick={() => {
-                if (checkedMemos.size > 0) {
-                  return;
-                }
-                history.push({
-                  pathname: `/${textUtils.slug(label)}/${textUtils.slug(item)}`,
-                });
-              }}
-            >
-              <Checkbox
-                checked={checkedMemos.includes(item)}
-                onChange={() => this.toggleCheckMemo(item)}
-                onClick={e => e.stopPropagation()}
-              />
-              <AntList.Item.Meta
-                title={item.title}
-                description={
-                  <span>
-                    {timeUtils.format(item.updatedAt)} | {item.content}
-                  </span>
-                }
-              />
-            </AntListItem>
-          )}
+          renderItem={item => this.renderListItem(item)}
         />
         {memos.size === 0 && (
           <Flex justify="center">
