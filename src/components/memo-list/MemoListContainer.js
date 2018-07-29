@@ -9,19 +9,21 @@ import * as labelListActions from '~/store/modules/labelList';
 import MemoList from './MemoList';
 import history from '~/history';
 
-const labelName = label => {
-  switch (label) {
+const getLabel = (labels, labelId) => {
+  switch (labelId) {
     case 'all':
     default:
-      return '전체';
+      return {
+        title: '전체',
+      };
   }
 };
 
-const memos = (label, memoListState) => {
-  switch (label) {
+const getMemos = (memos, labelId) => {
+  switch (labelId) {
     case 'all':
     default:
-      return memoListState.memos.sort(sortUtils.byUpdatedAt);
+      return memos.sort(sortUtils.byUpdatedAt);
   }
 };
 
@@ -82,10 +84,10 @@ export class MemoListContainer extends Component {
 }
 
 export default connect(
-  ({ memoList, labelList, pender }, { label }) => ({
+  ({ memoList, labelList, pender }, { labelId }) => ({
     labels: labelList.labels,
-    labelName: labelName(label),
-    memos: memos(label, memoList),
+    label: getLabel(labelList.labels, labelId),
+    memos: getMemos(memoList.memos, labelId),
     openedMemo: memoList.openedMemo,
     openingMemo: pender.pending[memoListActions.OPEN_MEMO],
   }),

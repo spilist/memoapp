@@ -4,6 +4,7 @@ import oc from 'open-color-js';
 import { Spinner } from '../common';
 import { Input, Button } from 'antd';
 import timeUtils from '~/utils/TimeUtils';
+import textUtils from '~/utils/TextUtils';
 import history from '~/history';
 
 const Container = styled.div`
@@ -98,7 +99,9 @@ export default class Memo extends Component {
   deleteMemo = () => {
     const { actions, memo, label } = this.props;
     if (confirm(`${memo.title}\n이 메모를 삭제하시겠습니까?`)) {
-      actions.deleteMemo(memo._id).then(val => history.replace(`/${label}`));
+      actions
+        .deleteMemo(memo._id)
+        .then(val => history.replace(`/${textUtils.slug(label)}`));
     }
   };
 

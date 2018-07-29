@@ -149,7 +149,7 @@ export default class MemoList extends Component {
     const { label, MemoListActions } = this.props;
     MemoListActions.createNewMemo().then(val => {
       history.push({
-        pathname: `/${label}/${textUtils.slug(val.data)}`,
+        pathname: `/${textUtils.slug(label)}/${textUtils.slug(val.data)}`,
       });
     });
   };
@@ -158,13 +158,13 @@ export default class MemoList extends Component {
     const { label } = this.props;
     this.setState({ checkedMemos: getState(this.props).checkedMemos }, () =>
       history.replace({
-        pathname: `/${label}`,
+        pathname: `/${textUtils.slug(label)}`,
       })
     );
   };
 
   renderHeader = () => {
-    const { label, labelName, memos } = this.props;
+    const { label, memos } = this.props;
     const { expanded } = this.state;
     return (
       <Box>
@@ -173,8 +173,8 @@ export default class MemoList extends Component {
             <IconButton onClick={this.toggleExpansion} active={expanded}>
               <i className="fa fa-list" />
             </IconButton>
-            <MemoListHeaderTitle to={`/${label}`}>
-              {`${labelName} (${memos.size})`}
+            <MemoListHeaderTitle to={`/${textUtils.slug(label)}`}>
+              {`${label.title} (${memos.size})`}
             </MemoListHeaderTitle>
           </Flex>
           <IconButton onClick={this.addMemo}>
@@ -197,10 +197,10 @@ export default class MemoList extends Component {
     const { memos, label, openedMemo } = this.props;
     const { checkedMemos } = this.state;
     let labelPrefix;
-    if (label === 'all') {
+    if (!label._id) {
       labelPrefix = '';
     } else {
-      labelPrefix = `${label} 라벨에 `;
+      labelPrefix = `${label.title} 라벨에 `;
     }
 
     return (
@@ -225,7 +225,7 @@ export default class MemoList extends Component {
                   return;
                 }
                 history.push({
-                  pathname: `/${label}/${textUtils.slug(item)}`,
+                  pathname: `/${textUtils.slug(label)}/${textUtils.slug(item)}`,
                 });
               }}
             >
@@ -259,6 +259,8 @@ export default class MemoList extends Component {
   render() {
     const {
       label,
+      labels,
+      memos,
       openedMemo,
       openingMemo,
       MemoListActions,
@@ -268,7 +270,14 @@ export default class MemoList extends Component {
 
     return (
       <Container>
-        {expanded && <LabelList label={label} actions={LabelListActions} />}
+        {expanded && (
+          <LabelList
+            label={label}
+            labels={labels}
+            allMemosSize={memos.size}
+            actions={LabelListActions}
+          />
+        )}
         <MemoListWrapper>
           {this.renderHeader()}
           {this.renderList()}

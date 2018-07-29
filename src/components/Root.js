@@ -30,7 +30,7 @@ export class Root extends Component {
             />
             <Route
               path="/all"
-              render={props => <MemoListcontainer {...props} label="all" />}
+              render={props => <MemoListcontainer {...props} labelId="all" />}
             />
             <Route
               path="/:labelSlug"
@@ -38,7 +38,7 @@ export class Root extends Component {
                 const { labelSlug } = props.match.params;
                 const id = textUtils.getId(labelSlug);
                 return id ? (
-                  <MemoListcontainer {...props} label={id} />
+                  <MemoListcontainer {...props} labelId={id} />
                 ) : (
                   <Redirect replace to="/all" />
                 );

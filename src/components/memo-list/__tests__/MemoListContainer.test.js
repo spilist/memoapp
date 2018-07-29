@@ -77,16 +77,18 @@ describe('[MemoListContainer]', () => {
     });
   });
 
-  describe('when props.label === "all"', () => {
+  describe('when props.labelId === "all"', () => {
     beforeEach(() => {
-      ownProps.label = 'all';
+      ownProps.labelId = 'all';
     });
 
     it('provides labelName as "전체" and memos as whole memos, which is reverse sorted by updatedAt to MemoList component', () => {
       state.memoList.memos = List(generateMemos(15));
       component = render();
       const MemoList = component.find('#MemoList');
-      expect(MemoList.prop('props').labelName).toBe('전체');
+      expect(MemoList.prop('props').label).toEqual({
+        title: '전체',
+      });
       expect(MemoList.prop('props').memos).toEqual(
         state.memoList.memos.sort(sortUtils.byUpdatedAt)
       );
