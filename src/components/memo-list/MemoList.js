@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { List } from 'immutable';
 import styled from 'styled-components';
@@ -8,6 +8,7 @@ import { Checkbox, List as AntList } from 'antd';
 import timeUtils from '~/utils/TimeUtils';
 import textUtils from '~/utils/TextUtils';
 import history from '~/history';
+import Memo from '../memo/Memo';
 
 const Container = styled.div`
   display: flex;
@@ -40,32 +41,47 @@ const MemoListHeaderTitle = styled(Link)`
 const AntListItem = styled(AntList.Item)`
   flex-direction: row-reverse;
   padding-left: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
   background-color: ${props => {
     if (props.checked) {
       return oc.indigo1;
     } else if (props.opened) {
-      return oc.teal3;
+      return oc.orange3;
     }
   }};
-  cursor: pointer;
 
   &:hover {
-    background-color: ${props => !props.checked && !props.opened && oc.teal1};
+    background-color: ${props => !props.checked && !props.opened && oc.orange1};
   }
 
   .ant-list-item-content {
     justify-content: flex-start;
     flex: 0 0 2rem;
   }
+
+  .ant-list-item-meta {
+    max-width: 150px;
+  }
+
+  .ant-list-item-meta-content {
+    max-width: 100%;
+  }
+
+  .ant-list-item-meta-description {
+    white-space: pre;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 `;
 
-const initialState = props => ({
+const getState = props => ({
   expanded: false,
   checkedMemos: List(),
 });
 
 export default class MemoList extends Component {
-  state = initialState(this.props);
+  state = getState(this.props);
 
   toggleExpansion = () => {
     this.setState({ expanded: !this.state.expanded });
@@ -83,7 +99,7 @@ export default class MemoList extends Component {
 
   toggleCheckAll = () => {
     if (this.isCheckedAll()) {
-      this.setState({ checkedMemos: initialState(this.props).checkedMemos });
+      this.setState({ checkedMemos: getState(this.props).checkedMemos });
     } else {
       this.setState({
         checkedMemos: this.props.memos,
@@ -176,12 +192,21 @@ export default class MemoList extends Component {
   };
 
   render() {
+    const { label, openedMemo, openingMemo, MemoListActions } = this.props;
     return (
       <Container>
         <MemoListWrapper>
           {this.renderHeader()}
           {this.renderList()}
         </MemoListWrapper>
+        {openedMemo && (
+          <Memo
+            label={label}
+            memo={openedMemo}
+            loading={openingMemo}
+            actions={MemoListActions}
+          />
+        )}
       </Container>
     );
   }
