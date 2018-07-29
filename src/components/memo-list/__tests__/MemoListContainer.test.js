@@ -23,6 +23,9 @@ beforeEach(() => {
     memoList: {
       memos: List(),
     },
+    labelList: {
+      labels: List(),
+    },
     pender: {
       pending: {},
     },

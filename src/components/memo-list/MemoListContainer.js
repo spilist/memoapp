@@ -5,6 +5,7 @@ import { matchPath } from 'react-router';
 import textUtils from '~/utils/TextUtils';
 import sortUtils from '~/utils/SortUtils';
 import * as memoListActions from '~/store/modules/memoList';
+import * as labelListActions from '~/store/modules/labelList';
 import MemoList from './MemoList';
 import history from '~/history';
 
@@ -84,7 +85,8 @@ export class MemoListContainer extends Component {
 }
 
 export default connect(
-  ({ memoList, pender }, { label }) => ({
+  ({ memoList, labelList, pender }, { label }) => ({
+    labels: labelList.labels,
     labelName: labelName(label),
     memos: memos(label, memoList),
     openedMemo: memoList.openedMemo,
@@ -92,5 +94,6 @@ export default connect(
   }),
   dispatch => ({
     MemoListActions: bindActionCreators(memoListActions, dispatch),
+    LabelListActions: bindActionCreators(labelListActions, dispatch),
   })
 )(MemoListContainer);

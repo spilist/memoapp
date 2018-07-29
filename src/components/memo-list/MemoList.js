@@ -11,6 +11,7 @@ import textUtils from '~/utils/TextUtils';
 import history from '~/history';
 import Memo from '../memo/Memo';
 import CheckedMemos from '../checked-memos/CheckedMemos';
+import LabelList from '../label-list/LabelList';
 
 const Container = styled.div`
   display: flex;
@@ -19,7 +20,7 @@ const Container = styled.div`
 `;
 
 const MemoListWrapper = styled.div`
-  padding: 0.5rem 1rem;
+  padding: 0.5rem;
   flex: 0 0 14rem;
   border-right: 2px solid ${oc.gray6};
   overflow: auto;
@@ -44,7 +45,8 @@ const MemoListHeaderTitle = styled(Link)`
 
 const AntListItem = styled(AntList.Item)`
   flex-direction: row-reverse;
-  padding-left: 0.5rem;
+  padding: 0 0.5rem 0 1rem;
+  margin: 0 -0.5rem;
   cursor: ${props => props.clickable && 'pointer'};
   transition: background-color 0.3s ease;
   background-color: ${props => {
@@ -66,7 +68,7 @@ const AntListItem = styled(AntList.Item)`
   }
 
   .ant-list-item-meta {
-    max-width: 150px;
+    max-width: calc(100% - 2rem);
   }
 
   .ant-list-item-meta-content {
@@ -257,11 +259,18 @@ export default class MemoList extends Component {
   };
 
   render() {
-    const { label, openedMemo, openingMemo, MemoListActions } = this.props;
-    const { checkedMemos } = this.state;
+    const {
+      label,
+      openedMemo,
+      openingMemo,
+      MemoListActions,
+      LabelListActions,
+    } = this.props;
+    const { expanded, checkedMemos } = this.state;
 
     return (
       <Container>
+        {expanded && <LabelList label={label} actions={LabelListActions} />}
         <MemoListWrapper>
           {this.renderHeader()}
           {this.renderList()}
