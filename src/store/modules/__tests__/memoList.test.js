@@ -84,46 +84,27 @@ describe('[memoList module]', () => {
   // });
 
   describe('openMemo(memoId)', () => {
-    it('calls openMemo api and sets state', done => {
+    it('find memo by memoId and sets state', () => {
       const memos = generateMemos(10);
-      const memo = Memo({
-        ...memos[5].toJS(),
-        content: 'content is updated',
-      });
+      const memo = memos[5];
       const memoId = memo._id;
 
       state = state.set('memos', List(memos));
       store.dispatch(openMemo(memoId));
       action = store.getActions()[0];
       expect(action).toEqual({
-        type: `${BASE}/OPEN_MEMO_PENDING`,
-        meta: undefined,
+        type: `${BASE}/OPEN_MEMO`,
+        payload: memoId,
       });
-
-      moxios.wait(() => {
-        let request = moxios.requests.mostRecent();
-        expect(request).toMatchObject({
-          url: `${SERVER_URL}/memos/${memoId}`,
-        });
-        request
-          .respondWith({
-            status: 200,
-            response: memo.toJS(),
-          })
-          .then(() => {
-            // success
-            action = store.getActions()[2];
-            const before = memoList(state, action);
-            const after = state.merge(
-              Map({
-                memos: List(memos).set(5, memo),
-                openedMemo: memo,
-              })
-            );
-            expect(before.toJS()).toEqual(after.toJS());
-            done();
-          });
-      });
+      expect(memoList(state, action).toJS()).toEqual(
+        state
+          .merge(
+            Map({
+              openedMemo: memo,
+            })
+          )
+          .toJS()
+      );
     });
   });
 
