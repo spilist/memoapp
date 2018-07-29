@@ -1,10 +1,15 @@
 import getSlug from 'speakingurl-add-korean';
 
-const slug = obj =>
-  `${getSlug(obj.title, {
+const slug = obj => {
+  if (!obj._id) {
+    return 'all';
+  }
+
+  return `${getSlug(obj.title, {
     truncate: 20,
     lang: 'ko',
   })}--${obj._id}`;
+};
 
 const truncate = (text, number = 20) => {
   if (text.length <= number) {

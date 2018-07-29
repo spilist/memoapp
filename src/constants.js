@@ -7,5 +7,11 @@ export default {
       update: '/memos/:id',
       delete: '/memos/:id',
     },
+    label: {
+      list: '/labels',
+      create: '/labels',
+      addMemos: '/labels/:id/memos',
+      deleteMemos: '/labels/:id/memos',
+    },
   },
 };

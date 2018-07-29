@@ -3,14 +3,16 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as memoListActions from '~/store/modules/memoList';
+import * as labelListActions from '~/store/modules/labelList';
 import textUtils from '~/utils/TextUtils';
 import { Spinner } from './common';
 import MemoListcontainer from './memo-list/MemoListContainer';
 
 export class Root extends Component {
   componentDidMount() {
-    const { MemoListActions } = this.props;
+    const { MemoListActions, LabelListActions } = this.props;
     MemoListActions.listAllMemos();
+    LabelListActions.listAllLabels();
   }
 
   render() {
@@ -28,11 +30,7 @@ export class Root extends Component {
             />
             <Route
               path="/all"
-              render={props => <MemoListcontainer {...props} label="all" />}
-            />
-            <Route
-              path="/untagged"
-              render={props => <MemoListcontainer {...props} label="none" />}
+              render={props => <MemoListcontainer {...props} labelId="all" />}
             />
             <Route
               path="/:labelSlug"
@@ -40,7 +38,7 @@ export class Root extends Component {
                 const { labelSlug } = props.match.params;
                 const id = textUtils.getId(labelSlug);
                 return id ? (
-                  <MemoListcontainer {...props} label={id} />
+                  <MemoListcontainer {...props} labelId={id} />
                 ) : (
                   <Redirect replace to="/all" />
                 );
@@ -57,10 +55,12 @@ export default connect(
   ({ pender }, ownProps) => ({
     loading:
       ownProps.loading === undefined
-        ? pender.pending[memoListActions.LIST_ALL_MEMOS]
+        ? pender.pending[memoListActions.LIST_ALL_MEMOS] ||
+          pender.pending[labelListActions.LIST_ALL_LABELS]
         : ownProps.loading,
   }),
   dispatch => ({
     MemoListActions: bindActionCreators(memoListActions, dispatch),
+    LabelListActions: bindActionCreators(labelListActions, dispatch),
   })
 )(Root);

@@ -7,6 +7,12 @@ export function listMemos() {
   return get(END_POINTS.memo.list);
 }
 
+export function listLabels() {
+  return get(END_POINTS.label.list, {
+    populate: false,
+  });
+}
+
 export function createMemo(params) {
   return post(
     END_POINTS.memo.create,
@@ -14,6 +20,36 @@ export function createMemo(params) {
     {
       title: params.title,
       content: params.content,
+    }
+  );
+}
+
+export function createLabel(params) {
+  return post(
+    END_POINTS.label.create,
+    {},
+    {
+      title: params.title,
+    }
+  );
+}
+
+export function addMemosToLabel(params) {
+  return post(
+    END_POINTS.label.addMemos,
+    { id: params.id },
+    {
+      memoIds: params.memoIds,
+    }
+  );
+}
+
+export function deleteMemosFromLabel(params) {
+  return del(
+    END_POINTS.label.deleteMemos,
+    { id: params.id },
+    {
+      memoIds: params.memoIds,
     }
   );
 }

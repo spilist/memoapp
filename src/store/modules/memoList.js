@@ -63,12 +63,9 @@ export default handleActions(
       type: DELETE_MEMO,
       onSuccess: (state, { payload: response }) => {
         const deleted = Memo(response.data);
-        const index = state.memos.findIndex(memo => memo._id === deleted._id);
-        const memos = index === -1 ? state.memos : state.memos.delete(index);
-
         return state.merge(
           Map({
-            memos: memos,
+            memos: state.memos.filter(memo => memo._id !== deleted._id),
             openedMemo: null,
           })
         );
@@ -77,18 +74,12 @@ export default handleActions(
     ...pender({
       type: DELETE_MEMOS,
       onSuccess: (state, { payload: response }) => {
-        let memos = state.memos;
-        response.forEach(resp => {
-          const deleted = Memo(resp.data);
-          const index = memos.findIndex(memo => memo._id === deleted._id);
-          if (index !== -1) {
-            memos = memos.delete(index);
-          }
-        });
-
+        const deletedMemoIds = response.map(resp => resp.data._id);
         return state.merge(
           Map({
-            memos: memos,
+            memos: state.memos.filter(
+              memo => !deletedMemoIds.includes(memo._id)
+            ),
             openedMemo: null,
           })
         );

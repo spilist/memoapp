@@ -21,6 +21,9 @@ beforeEach(() => {
     MemoListActions: {
       listAllMemos: jest.fn(),
     },
+    LabelListActions: {
+      listAllLabels: jest.fn(),
+    },
   };
   moxios.install();
 });
@@ -58,32 +61,20 @@ describe('[Root]', () => {
       path = '/all';
     });
 
-    it('renders MemoListContainer with label="all" prop', () => {
+    it('renders MemoListContainer with labelId="all" prop', () => {
       component = render();
       const container = component.find('#MemoListContainer');
-      expect(container.prop('props').label).toBe('all');
-    });
-  });
-
-  describe('when path is /untagged', () => {
-    beforeEach(() => {
-      path = '/untagged';
-    });
-
-    it('renders MemoListContainer with label="none" prop', () => {
-      component = render();
-      const container = component.find('#MemoListContainer');
-      expect(container.prop('props').label).toBe('none');
+      expect(container.prop('props').labelId).toBe('all');
     });
   });
 
   describe('when path is /:labelSlug', () => {
-    it('renders MemoListContainer with label=":labelId" prop when path is in correct form', () => {
+    it('renders MemoListContainer with labelId=":labelId" prop when path is in correct form', () => {
       const mongoId = utils.mongoObjectId();
       path = `/some-label-slug--${mongoId}`;
       component = render();
       const container = component.find('#MemoListContainer');
-      expect(container.prop('props').label).toBe(mongoId);
+      expect(container.prop('props').labelId).toBe(mongoId);
     });
 
     it('redirects to /all when path is not in correct form', () => {
@@ -100,6 +91,11 @@ describe('[Root]', () => {
     it('calls MemoListActions.listAllMemos()', () => {
       renderSimple();
       expect(simpleProps.MemoListActions.listAllMemos).toBeCalledWith();
+    });
+
+    it('calls LabelListActions.listAllLabels()', () => {
+      renderSimple();
+      expect(simpleProps.LabelListActions.listAllLabels).toBeCalledWith();
     });
   });
 });

@@ -5,22 +5,30 @@ import { matchPath } from 'react-router';
 import textUtils from '~/utils/TextUtils';
 import sortUtils from '~/utils/SortUtils';
 import * as memoListActions from '~/store/modules/memoList';
+import * as labelListActions from '~/store/modules/labelList';
 import MemoList from './MemoList';
 import history from '~/history';
 
-const labelName = label => {
-  switch (label) {
+const getLabel = (labels, labelId) => {
+  switch (labelId) {
     case 'all':
+      return {
+        title: '전체',
+      };
     default:
-      return '전체';
+      return labels.find(l => l._id === labelId) || {};
   }
 };
 
-const memos = (label, memoListState) => {
-  switch (label) {
+const getMemos = (memos, labels, labelId) => {
+  switch (labelId) {
     case 'all':
+      return memos.sort(sortUtils.byUpdatedAt);
     default:
-      return memoListState.memos.sort(sortUtils.byUpdatedAt);
+      const label = getLabel(labels, labelId);
+      return memos
+        .filter(memo => label.memoIds.includes(memo._id))
+        .sort(sortUtils.byUpdatedAt);
   }
 };
 
@@ -64,17 +72,16 @@ export class MemoListContainer extends Component {
 
     if (match && match.params && match.params.memoSlug) {
       const { memoSlug } = match.params;
-      if (memoSlug === 'new') {
-      } else {
-        const memoId = textUtils.getId(memoSlug);
-        if (!memoId) {
-          history.replace({
-            pathname: `/${label}`,
-          });
-          return;
-        }
-        MemoListActions.openMemo(memoId);
+      const memoId = textUtils.getId(memoSlug);
+      if (!memoId) {
+        history.replace({
+          pathname: `/${label}`,
+        });
+        return;
       }
+      MemoListActions.openMemo(memoId);
+    } else {
+      MemoListActions.openMemo(null);
     }
   };
 
@@ -84,13 +91,16 @@ export class MemoListContainer extends Component {
 }
 
 export default connect(
-  ({ memoList, pender }, { label }) => ({
-    labelName: labelName(label),
-    memos: memos(label, memoList),
+  ({ memoList, labelList, pender }, { labelId }) => ({
+    labels: labelList.labels,
+    label: getLabel(labelList.labels, labelId),
+    memos: getMemos(memoList.memos, labelList.labels, labelId),
+    allMemosSize: memoList.memos.size,
     openedMemo: memoList.openedMemo,
     openingMemo: pender.pending[memoListActions.OPEN_MEMO],
   }),
   dispatch => ({
     MemoListActions: bindActionCreators(memoListActions, dispatch),
+    LabelListActions: bindActionCreators(labelListActions, dispatch),
   })
 )(MemoListContainer);

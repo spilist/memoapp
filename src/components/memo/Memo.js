@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import oc from 'open-color-js';
 import { Spinner } from '../common';
-import { Input, Button } from 'antd';
+import { Input, Button, Tag } from 'antd';
 import timeUtils from '~/utils/TimeUtils';
+import textUtils from '~/utils/TextUtils';
 import history from '~/history';
 
 const Container = styled.div`
@@ -19,21 +20,46 @@ const Header = styled.div`
   justify-content: space-between;
   border-bottom: 1px solid ${oc.gray6};
   margin-bottom: 0.5rem;
-  flex: 0 0 4.5rem;
+  flex: 0 0 5rem;
+`;
+
+const HeaderLeft = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  max-width: calc(100% - 4rem);
 `;
 
 const HeaderInput = styled(Input)`
   &.ant-input {
     border: 0;
     border-radius: 0;
-    flex: 1 1 auto;
     font-size: 24px;
     padding: 0;
-    margin: 0.5rem 0;
+    margin: 0;
 
     &:focus {
       box-shadow: none;
     }
+  }
+`;
+
+const ItemLabels = styled.div`
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+`;
+
+const ItemLabelsIcon = styled.div`
+  color: ${oc.indigo5};
+  margin-right: 4px;
+`;
+
+const AntTag = styled(Tag)`
+  &.ant-tag {
+    font-size: 10px;
   }
 `;
 
@@ -85,10 +111,10 @@ export default class Memo extends Component {
   };
 
   updateMemo = (name, e) => {
-    const { actions, memo } = this.props;
+    const { MemoListActions, memo } = this.props;
     const value = e.target.value;
     if (value !== memo[name]) {
-      actions.updateMemo({
+      MemoListActions.updateMemo({
         id: memo._id,
         [name]: e.target.value,
       });
@@ -96,27 +122,63 @@ export default class Memo extends Component {
   };
 
   deleteMemo = () => {
-    const { actions, memo, label } = this.props;
+    const { LabelListActions, MemoListActions, memo, label } = this.props;
     if (confirm(`${memo.title}\n이 메모를 삭제하시겠습니까?`)) {
-      actions.deleteMemo(memo._id).then(val => history.replace(`/${label}`));
+      if (label._id) {
+        MemoListActions.deleteMemo(memo._id).then(val => {
+          LabelListActions.deleteMemosFromLabel(label._id, [val.data._id]).then(
+            () => {
+              history.replace(`/${textUtils.slug(label)}`);
+            }
+          );
+        });
+      } else {
+        MemoListActions.deleteMemo(memo._id).then(val =>
+          history.replace(`/${textUtils.slug(label)}`)
+        );
+      }
     }
   };
 
   renderHeader = () => {
-    const { memo } = this.props;
+    const { memo, labels } = this.props;
     const { title } = this.state;
+    const memoLabels = labels.filter(lab => lab.memoIds.includes(memo._id));
 
     return (
       <Header>
-        <HeaderInput
-          value={title}
-          onChange={e => this.handleChange('title', e)}
-          onBlur={e => this.updateMemo('title', e)}
-          onPressEnter={e => {
-            this.updateMemo('title', e);
-            this.contentTextarea.focus();
-          }}
-        />
+        <HeaderLeft>
+          <HeaderInput
+            value={title}
+            onChange={e => this.handleChange('title', e)}
+            onBlur={e => this.updateMemo('title', e)}
+            onPressEnter={e => {
+              this.updateMemo('title', e);
+              this.contentTextarea.focus();
+            }}
+          />
+          {memoLabels.size > 0 && (
+            <ItemLabels>
+              <ItemLabelsIcon>
+                <i className="fa fa-tags" />
+              </ItemLabelsIcon>
+              {memoLabels.map(lab => (
+                <AntTag
+                  key={lab._id}
+                  color="geekblue"
+                  onClick={e => {
+                    e.stopPropagation();
+                    history.push({
+                      pathname: `/${textUtils.slug(lab)}`,
+                    });
+                  }}
+                >
+                  {textUtils.truncate(lab.title, 25)}
+                </AntTag>
+              ))}
+            </ItemLabels>
+          )}
+        </HeaderLeft>
         <HeaderRight>
           <Button
             type="danger"
