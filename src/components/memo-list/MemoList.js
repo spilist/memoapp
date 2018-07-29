@@ -150,12 +150,22 @@ export default class MemoList extends Component {
   };
 
   addMemo = () => {
-    const { label, MemoListActions } = this.props;
-    MemoListActions.createNewMemo().then(val => {
-      history.push({
-        pathname: `/${textUtils.slug(label)}/${textUtils.slug(val.data)}`,
+    const { label, LabelListActions, MemoListActions } = this.props;
+    if (label._id) {
+      MemoListActions.createNewMemo().then(val => {
+        LabelListActions.addMemosToLabel(label._id, [val.data._id]).then(() => {
+          history.push({
+            pathname: `/${textUtils.slug(label)}/${textUtils.slug(val.data)}`,
+          });
+        });
       });
-    });
+    } else {
+      MemoListActions.createNewMemo().then(val => {
+        history.push({
+          pathname: `/${textUtils.slug(label)}/${textUtils.slug(val.data)}`,
+        });
+      });
+    }
   };
 
   deleteAllCallback = () => {

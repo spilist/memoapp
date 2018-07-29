@@ -10,6 +10,7 @@ export default {
     label: {
       list: '/labels',
       create: '/labels',
+      addMemos: '/labels/:id/memos',
     },
   },
 };

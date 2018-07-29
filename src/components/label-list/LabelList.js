@@ -62,7 +62,7 @@ const AntListItem = styled(AntList.Item)`
 
 const getState = props => ({});
 
-export default class MemoList extends Component {
+export default class LabelList extends Component {
   state = getState(this.props);
 
   addLabel = () => {
