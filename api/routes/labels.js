@@ -11,39 +11,35 @@ router.get('/', function(req, res, next) {
   } else {
     query = Label.find().populate('memos');
   }
-  query
-    .exec(function (err, labels) {
-      if (err) return next(err);
-      res.json(labels);
-    })
+  query.exec(function(err, labels) {
+    if (err) return next(err);
+    res.json(labels);
+  });
 });
 
 /* POST /labels */
 router.post('/', function(req, res, next) {
-  Label
-    .create(req.body, function (err, label) {
+  Label.create(req.body, function(err, label) {
+    if (err) return next(err);
+    res.json(label);
+  });
+});
+
+/* GET /labels/:id */
+router.get('/:id', function(req, res, next) {
+  Label.findById(req.params.id)
+    .populate('memos')
+    .exec(function(err, label) {
       if (err) return next(err);
       res.json(label);
     });
 });
 
-/* GET /labels/:id */
-router.get('/:id', function(req, res, next) {
-  Label
-    .findById(req.params.id)
-    .populate('memos')
-    .exec(function (err, label) {
-      if (err) return next(err);
-      res.json(label);
-    })
-});
-
 /* PUT /labels/:id */
 router.put('/:id', function(req, res, next) {
-  Label
-    .findByIdAndUpdate(req.params.id, req.body, {new: true})
+  Label.findByIdAndUpdate(req.params.id, req.body, { new: true })
     .populate('memos')
-    .exec(function (err, label) {
+    .exec(function(err, label) {
       if (err) return next(err);
       res.json(label);
     });
@@ -51,10 +47,9 @@ router.put('/:id', function(req, res, next) {
 
 /* DELETE /labels/:id */
 router.delete('/:id', function(req, res, next) {
-  Label
-    .findByIdAndRemove(req.params.id, req.body)
+  Label.findByIdAndRemove(req.params.id, req.body)
     .populate('memos')
-    .exec(function (err, label) {
+    .exec(function(err, label) {
       if (err) return next(err);
       res.json(label);
     });
@@ -63,10 +58,13 @@ router.delete('/:id', function(req, res, next) {
 /* POST /:id/memos */
 router.post('/:id/memos', function(req, res, next) {
   var memoIds = req.body.memoIds || [];
-  Label
-    .findByIdAndUpdate(req.params.id, { $addToSet: { memos: { $each: memoIds } } }, {new: true})
+  Label.findByIdAndUpdate(
+    req.params.id,
+    { $addToSet: { memos: { $each: memoIds } } },
+    { new: true }
+  )
     .populate('memos')
-    .exec(function (err, label) {
+    .exec(function(err, label) {
       if (err) return next(err);
       res.json(label);
     });
@@ -75,10 +73,13 @@ router.post('/:id/memos', function(req, res, next) {
 /* DELETE /:id/memos */
 router.delete('/:id/memos', function(req, res, next) {
   var memoIds = req.body.memoIds || [];
-  Label
-    .findByIdAndUpdate(req.params.id, { $pop: { memos: { $each: memoIds } } }, {new: true})
+  Label.findByIdAndUpdate(
+    req.params.id,
+    { $pullAll: { memos: memoIds } },
+    { new: true }
+  )
     .populate('memos')
-    .exec(function (err, label) {
+    .exec(function(err, label) {
       if (err) return next(err);
       res.json(label);
     });
