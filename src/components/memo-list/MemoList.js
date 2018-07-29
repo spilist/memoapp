@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
+import QueryString from 'query-string';
 import { List } from 'immutable';
 import styled from 'styled-components';
 import oc from 'open-color-js';
@@ -85,16 +86,25 @@ const AntListItem = styled(AntList.Item)`
   }
 `;
 
-const getState = props => ({
-  expanded: false,
-  checkedMemos: List(),
-});
+const getState = props => {
+  const { location } = props;
+  const query = QueryString.parse(location.search);
+
+  return {
+    expanded: Boolean(query && query.expanded === 'true'),
+    checkedMemos: List(),
+  };
+};
 
 export default class MemoList extends Component {
   state = getState(this.props);
 
   toggleExpansion = () => {
-    this.setState({ expanded: !this.state.expanded });
+    this.setState({ expanded: !this.state.expanded }, () => {
+      history.replace({
+        search: this.state.expanded ? 'expanded=true' : '',
+      });
+    });
   };
 
   isCheckedAll = () => {
