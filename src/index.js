@@ -5,6 +5,7 @@ import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 import { Route, Router } from 'react-router-dom';
 import { injectGlobal } from 'styled-components';
+import oc from 'open-color-js';
 import FontFaceObserver from 'fontfaceobserver';
 import history from './history';
 import store from './store';
@@ -40,6 +41,20 @@ injectGlobal`
     box-sizing: inherit;
     -webkit-overflow-scrolling: touch;
     -ms-overflow-style: -ms-autohiding-scrollbar;
+  }
+
+  .root {
+    a {
+      color: ${oc.gray8};
+    }
+
+    a:hover {
+      color: ${oc.gray6};
+    }
+
+    a:focus {
+      text-decoration: none;
+    }
   }
 `;
 /* eslint-enable */
