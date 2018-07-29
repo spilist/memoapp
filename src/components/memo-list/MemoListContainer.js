@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { matchPath } from 'react-router';
 import textUtils from '~/utils/TextUtils';
 import sortUtils from '~/utils/SortUtils';
@@ -26,11 +27,13 @@ const memos = (label, memoListState) => {
 export class MemoListContainer extends Component {
   componentDidMount() {
     this.redirect(this.props);
+    this.openMemo(this.props);
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.location.pathname !== prevProps.location.pathname) {
       this.redirect(this.props);
+      this.openMemo(this.props);
     }
   }
 
@@ -52,6 +55,26 @@ export class MemoListContainer extends Component {
     }
   };
 
+  openMemo = props => {
+    const { location, MemoListActions } = props;
+    const match = matchPath(location.pathname, {
+      path: '/:labelSlug/:memoSlug',
+      exact: true,
+    });
+
+    if (match && match.params && match.params.memoSlug) {
+      const { memoSlug } = match.params;
+      if (memoSlug === 'new') {
+      } else {
+        const memoId = textUtils.getId(memoSlug);
+        if (!memoId) {
+          return;
+        }
+        MemoListActions.openMemo(memoId);
+      }
+    }
+  };
+
   render() {
     return <MemoList {...this.props} />;
   }
@@ -61,6 +84,10 @@ export default connect(
   ({ memoList, pender }, { label }) => ({
     labelName: labelName(label),
     memos: memos(label, memoList),
+    openedMemo: memoList.openedMemo,
+    openingMemo: pender.pending[memoListActions.OPEN_MEMO],
   }),
-  dispatch => ({})
+  dispatch => ({
+    MemoListActions: bindActionCreators(memoListActions, dispatch),
+  })
 )(MemoListContainer);

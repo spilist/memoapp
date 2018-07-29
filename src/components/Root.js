@@ -3,6 +3,7 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as memoListActions from '~/store/modules/memoList';
+import textUtils from '~/utils/TextUtils';
 import { Spinner } from './common';
 import MemoListcontainer from './memo-list/MemoListContainer';
 
@@ -32,12 +33,9 @@ export class Root extends Component {
             path="/:labelSlug"
             render={props => {
               const { labelSlug } = props.match.params;
-              const isLabelIdExist = labelSlug.indexOf('--') !== -1;
-              return isLabelIdExist ? (
-                <MemoListcontainer
-                  {...props}
-                  label={labelSlug.split('--').pop()}
-                />
+              const id = textUtils.getId(labelSlug);
+              return id ? (
+                <MemoListcontainer {...props} label={id} />
               ) : (
                 <Redirect replace to="/all" />
               );

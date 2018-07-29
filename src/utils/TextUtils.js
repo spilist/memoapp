@@ -6,6 +6,12 @@ const slug = obj =>
     lang: 'ko',
   })}--${obj._id}`;
 
+const getId = slug => {
+  const isIdExist = slug.indexOf('--') !== -1;
+  return isIdExist ? slug.split('--').pop() : null;
+};
+
 export default {
   slug,
+  getId,
 };

@@ -1,11 +1,13 @@
 import React, { Component, Fragment } from 'react';
+import { Link } from 'react-router-dom';
 import { List } from 'immutable';
 import styled from 'styled-components';
 import oc from 'open-color-js';
 import { Flex, Box } from 'reflexbox';
 import { Checkbox, List as AntList } from 'antd';
-import { Spinner } from '../common';
 import timeUtils from '~/utils/TimeUtils';
+import textUtils from '~/utils/TextUtils';
+import history from '~/history';
 
 const Container = styled.div`
   display: flex;
@@ -29,7 +31,7 @@ const IconButton = styled.div`
   }
 `;
 
-const MemoListHeaderTitle = styled.div`
+const MemoListHeaderTitle = styled(Link)`
   font-size: 16px;
   font-weight: bold;
   margin-left: 4px;
@@ -38,11 +40,17 @@ const MemoListHeaderTitle = styled.div`
 const AntListItem = styled(AntList.Item)`
   flex-direction: row-reverse;
   padding-left: 0.5rem;
-  background-color: ${props => props.checked && oc.indigo1};
+  background-color: ${props => {
+    if (props.checked) {
+      return oc.indigo1;
+    } else if (props.opened) {
+      return oc.teal3;
+    }
+  }};
   cursor: pointer;
 
   &:hover {
-    background-color: ${props => !props.checked && oc.teal1};
+    background-color: ${props => !props.checked && !props.opened && oc.teal1};
   }
 
   .ant-list-item-content {
@@ -100,9 +108,8 @@ export default class MemoList extends Component {
   };
 
   renderHeader = () => {
-    const { labelName, memos, loading } = this.props;
+    const { label, labelName, memos } = this.props;
     const { expanded } = this.state;
-    const size = loading ? '...' : memos.size;
     return (
       <Box>
         <Flex justify="space-between" mb="1rem" align="center">
@@ -110,15 +117,15 @@ export default class MemoList extends Component {
             <IconButton onClick={this.toggleExpansion} active={expanded}>
               <i className="fa fa-list" />
             </IconButton>
-            <MemoListHeaderTitle>
-              {`${labelName} (${size})`}
+            <MemoListHeaderTitle to={`/${label}`}>
+              {`${labelName} (${memos.size})`}
             </MemoListHeaderTitle>
           </Flex>
           <IconButton>
             <i className="fa fa-plus" />
           </IconButton>
         </Flex>
-        <Box pl="0.5rem">
+        <Box pl="0.5rem" mb="0.5rem">
           <Checkbox
             checked={this.isCheckedAll()}
             onChange={this.toggleCheckAll}
@@ -131,17 +138,28 @@ export default class MemoList extends Component {
   };
 
   renderList = () => {
-    const { memos } = this.props;
+    const { memos, label, openedMemo } = this.props;
     const { checkedMemos } = this.state;
     return (
       <AntList
         itemLayout="horizontal"
         dataSource={memos}
         renderItem={item => (
-          <AntListItem checked={checkedMemos.includes(item)}>
+          <AntListItem
+            checked={checkedMemos.includes(item)}
+            opened={
+              openedMemo && openedMemo._id === item._id ? 'true' : undefined
+            }
+            onClick={() =>
+              history.push({
+                pathname: `/${label}/${textUtils.slug(item)}`,
+              })
+            }
+          >
             <Checkbox
               checked={checkedMemos.includes(item)}
               onChange={() => this.toggleCheckMemo(item)}
+              onClick={e => e.stopPropagation()}
             />
             <AntList.Item.Meta
               title={item.title}
