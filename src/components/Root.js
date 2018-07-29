@@ -14,24 +14,30 @@ export class Root extends Component {
 
   render() {
     const { loading } = this.props;
-    return loading ? (
+    return loading !== false ? (
       <Spinner />
     ) : (
       <div className="root">
         <Switch>
           <Route exact path="/" render={() => <Redirect replace to="/all" />} />
-          <Route path="/all" render={() => <MemoListcontainer label="all" />} />
+          <Route
+            path="/all"
+            render={props => <MemoListcontainer {...props} label="all" />}
+          />
           <Route
             path="/untagged"
-            render={() => <MemoListcontainer label="none" />}
+            render={props => <MemoListcontainer {...props} label="none" />}
           />
           <Route
             path="/:labelSlug"
-            render={({ match }) => {
-              const { labelSlug } = match.params;
+            render={props => {
+              const { labelSlug } = props.match.params;
               const isLabelIdExist = labelSlug.indexOf('--') !== -1;
               return isLabelIdExist ? (
-                <MemoListcontainer label={labelSlug.split('--').pop()} />
+                <MemoListcontainer
+                  {...props}
+                  label={labelSlug.split('--').pop()}
+                />
               ) : (
                 <Redirect replace to="/all" />
               );
