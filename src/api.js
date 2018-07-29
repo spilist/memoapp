@@ -1,5 +1,5 @@
 import constants from '~/constants.js';
-import { get, post, put, del } from '~/utils/WebRequestUtils';
+import { get, post, put, del, delAll } from '~/utils/WebRequestUtils';
 
 const END_POINTS = constants.endPoints;
 
@@ -28,6 +28,10 @@ export function deleteMemo(memoId) {
   return del(END_POINTS.memo.delete, {
     id: memoId,
   });
+}
+
+export function deleteMemos(memoIds) {
+  return delAll(END_POINTS.memo.delete, memoIds);
 }
 
 export function updateMemo(params) {

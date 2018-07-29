@@ -39,3 +39,11 @@ export function put(endPoint, namedParams = {}, userParams = {}) {
 export function del(endPoint, namedParams = {}, userParams = {}) {
   return _request('DELETE', _requestUrl(endPoint, namedParams), userParams);
 }
+
+export function delAll(endPoint, namedParamsArray = []) {
+  return Promise.all(
+    namedParamsArray.map(namedParams =>
+      _request('DELETE', _requestUrl(endPoint, namedParams, {}))
+    )
+  );
+}

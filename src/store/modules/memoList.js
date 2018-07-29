@@ -8,6 +8,7 @@ export const CREATE_NEW_MEMO = 'memoList/CREATE_NEW_MEMO';
 export const OPEN_MEMO = 'memoList/OPEN_MEMO';
 export const UPDATE_MEMO = 'memoList/UPDATE_MEMO';
 export const DELETE_MEMO = 'memoList/DELETE_MEMO';
+export const DELETE_MEMOS = 'memoList/DELETE_MEMOS';
 
 export const listAllMemos = createAction(LIST_ALL_MEMOS, () => api.listMemos());
 export const createNewMemo = createAction(CREATE_NEW_MEMO, () =>
@@ -21,6 +22,9 @@ export const updateMemo = createAction(UPDATE_MEMO, params =>
 );
 export const deleteMemo = createAction(DELETE_MEMO, memoId =>
   api.deleteMemo(memoId)
+);
+export const deleteMemos = createAction(DELETE_MEMOS, memoIds =>
+  api.deleteMemos(memoIds)
 );
 
 export const Memo = Record({
@@ -60,7 +64,27 @@ export default handleActions(
       onSuccess: (state, { payload: response }) => {
         const deleted = Memo(response.data);
         const index = state.memos.findIndex(memo => memo._id === deleted._id);
-        const memos = index === -1 ? state : state.memos.delete(index);
+        const memos = index === -1 ? state.memos : state.memos.delete(index);
+
+        return state.merge(
+          Map({
+            memos: memos,
+            openedMemo: null,
+          })
+        );
+      },
+    }),
+    ...pender({
+      type: DELETE_MEMOS,
+      onSuccess: (state, { payload: response }) => {
+        let memos = state.memos;
+        response.forEach(resp => {
+          const deleted = Memo(resp.data);
+          const index = memos.findIndex(memo => memo._id === deleted._id);
+          if (index !== -1) {
+            memos = memos.delete(index);
+          }
+        });
 
         return state.merge(
           Map({
