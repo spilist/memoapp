@@ -7,5 +7,8 @@ export default {
       update: '/memos/:id',
       delete: '/memos/:id',
     },
+    label: {
+      list: '/labels',
+    },
   },
 };

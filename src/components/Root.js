@@ -3,14 +3,16 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as memoListActions from '~/store/modules/memoList';
+import * as labelListActions from '~/store/modules/labelList';
 import textUtils from '~/utils/TextUtils';
 import { Spinner } from './common';
 import MemoListcontainer from './memo-list/MemoListContainer';
 
 export class Root extends Component {
   componentDidMount() {
-    const { MemoListActions } = this.props;
+    const { MemoListActions, LabelListActions } = this.props;
     MemoListActions.listAllMemos();
+    LabelListActions.listAllLabels();
   }
 
   render() {
@@ -62,5 +64,6 @@ export default connect(
   }),
   dispatch => ({
     MemoListActions: bindActionCreators(memoListActions, dispatch),
+    LabelListActions: bindActionCreators(labelListActions, dispatch),
   })
 )(Root);

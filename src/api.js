@@ -7,6 +7,12 @@ export function listMemos() {
   return get(END_POINTS.memo.list);
 }
 
+export function listLabels() {
+  return get(END_POINTS.label.list, {
+    populate: false,
+  });
+}
+
 export function createMemo(params) {
   return post(
     END_POINTS.memo.create,

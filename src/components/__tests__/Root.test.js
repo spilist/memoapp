@@ -21,6 +21,9 @@ beforeEach(() => {
     MemoListActions: {
       listAllMemos: jest.fn(),
     },
+    LabelListActions: {
+      listAllLabels: jest.fn(),
+    },
   };
   moxios.install();
 });
@@ -100,6 +103,11 @@ describe('[Root]', () => {
     it('calls MemoListActions.listAllMemos()', () => {
       renderSimple();
       expect(simpleProps.MemoListActions.listAllMemos).toBeCalledWith();
+    });
+
+    it('calls LabelListActions.listAllLabels()', () => {
+      renderSimple();
+      expect(simpleProps.LabelListActions.listAllLabels).toBeCalledWith();
     });
   });
 });
