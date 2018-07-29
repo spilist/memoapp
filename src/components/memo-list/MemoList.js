@@ -131,11 +131,9 @@ export default class MemoList extends Component {
   };
 
   renderList = () => {
-    const { memos, loading } = this.props;
+    const { memos } = this.props;
     const { checkedMemos } = this.state;
-    return loading ? (
-      <Spinner />
-    ) : (
+    return (
       <AntList
         itemLayout="horizontal"
         dataSource={memos}

@@ -3,6 +3,7 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as memoListActions from '~/store/modules/memoList';
+import { Spinner } from './common';
 import MemoListcontainer from './memo-list/MemoListContainer';
 
 export class Root extends Component {
@@ -12,7 +13,10 @@ export class Root extends Component {
   }
 
   render() {
-    return (
+    const { loading } = this.props;
+    return loading ? (
+      <Spinner />
+    ) : (
       <div className="root">
         <Switch>
           <Route exact path="/" render={() => <Redirect replace to="/all" />} />
@@ -40,7 +44,12 @@ export class Root extends Component {
 }
 
 export default connect(
-  () => ({}),
+  ({ pender }, ownProps) => ({
+    loading:
+      ownProps.loading === undefined
+        ? pender.pending[memoListActions.LIST_ALL_MEMOS]
+        : ownProps.loading,
+  }),
   dispatch => ({
     MemoListActions: bindActionCreators(memoListActions, dispatch),
   })

@@ -13,8 +13,11 @@ jest.mock('../memo-list/MemoListContainer', () => props => (
 let path, ownProps, simpleProps, component;
 beforeEach(() => {
   path = '/';
-  ownProps = {};
+  ownProps = {
+    loading: false,
+  };
   simpleProps = {
+    loading: false,
     MemoListActions: {
       listAllMemos: jest.fn(),
     },

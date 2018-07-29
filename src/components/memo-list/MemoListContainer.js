@@ -29,7 +29,6 @@ export default connect(
   ({ memoList, pender }, { label }) => ({
     labelName: labelName(label),
     memos: memos(label, memoList),
-    loading: pender.pending[memoListActions.LIST_ALL_MEMOS],
   }),
   dispatch => ({})
 )(MemoListContainer);
