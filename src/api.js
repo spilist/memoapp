@@ -13,6 +13,12 @@ export function getMemo(memoId) {
   });
 }
 
+export function deleteMemo(memoId) {
+  return del(END_POINTS.memo.delete, {
+    id: memoId,
+  });
+}
+
 export function updateMemo(params) {
   return put(
     END_POINTS.memo.update,

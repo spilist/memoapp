@@ -6,6 +6,7 @@ import * as api from '~/api';
 export const LIST_ALL_MEMOS = 'memoList/LIST_ALL_MEMOS';
 export const OPEN_MEMO = 'memoList/OPEN_MEMO';
 export const UPDATE_MEMO = 'memoList/UPDATE_MEMO';
+export const DELETE_MEMO = 'memoList/DELETE_MEMO';
 
 export const listAllMemos = createAction(LIST_ALL_MEMOS, () => api.listMemos());
 export const openMemo = createAction(OPEN_MEMO, memoId => api.getMemo(memoId));
@@ -15,6 +16,9 @@ export const updateMemo = createAction(UPDATE_MEMO, params =>
     title: params.title,
     content: params.content,
   })
+);
+export const deleteMemo = createAction(DELETE_MEMO, memoId =>
+  api.deleteMemo(memoId)
 );
 
 export const Memo = Record({
@@ -32,6 +36,21 @@ const initialState = Record({
 
 export default handleActions(
   {
+    ...pender({
+      type: DELETE_MEMO,
+      onSuccess: (state, { payload: response }) => {
+        const deleted = Memo(response.data);
+        const index = state.memos.findIndex(memo => memo._id === deleted._id);
+        const memos = index === -1 ? state : state.memos.delete(index);
+
+        return state.merge(
+          Map({
+            memos: memos,
+            openedMemo: null,
+          })
+        );
+      },
+    }),
     ...pender({
       type: UPDATE_MEMO,
       onSuccess: (state, { payload: response }) => {
