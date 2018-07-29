@@ -19,7 +19,7 @@ function _request(method, url, data) {
       Accept: 'application/json',
     },
     params: method === 'GET' ? data : {},
-    data: method === 'POST' ? data : {},
+    data: method !== 'GET' ? data : {},
     url,
   });
 }
@@ -30,4 +30,12 @@ export function get(endPoint, namedParams = {}, userParams = {}) {
 
 export function post(endPoint, namedParams = {}, userParams = {}) {
   return _request('POST', _requestUrl(endPoint, namedParams), userParams);
+}
+
+export function put(endPoint, namedParams = {}, userParams = {}) {
+  return _request('PUT', _requestUrl(endPoint, namedParams), userParams);
+}
+
+export function del(endPoint, namedParams = {}, userParams = {}) {
+  return _request('DELETE', _requestUrl(endPoint, namedParams), userParams);
 }

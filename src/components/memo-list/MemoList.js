@@ -1,21 +1,26 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import { List } from 'immutable';
 import styled from 'styled-components';
 import oc from 'open-color-js';
 import { Flex, Box } from 'reflexbox';
 import { Checkbox, List as AntList } from 'antd';
-import { Spinner } from '../common';
 import timeUtils from '~/utils/TimeUtils';
+import textUtils from '~/utils/TextUtils';
+import history from '~/history';
+import Memo from '../memo/Memo';
 
 const Container = styled.div`
   display: flex;
   height: 100%;
+  overflow: hidden;
 `;
 
 const MemoListWrapper = styled.div`
   padding: 0.5rem 1rem;
   flex: 0 0 14rem;
   border-right: 2px solid ${oc.gray6};
+  overflow: auto;
 `;
 
 const IconButton = styled.div`
@@ -29,7 +34,7 @@ const IconButton = styled.div`
   }
 `;
 
-const MemoListHeaderTitle = styled.div`
+const MemoListHeaderTitle = styled(Link)`
   font-size: 16px;
   font-weight: bold;
   margin-left: 4px;
@@ -38,26 +43,53 @@ const MemoListHeaderTitle = styled.div`
 const AntListItem = styled(AntList.Item)`
   flex-direction: row-reverse;
   padding-left: 0.5rem;
-  background-color: ${props => props.checked && oc.indigo1};
   cursor: pointer;
+  transition: background-color 0.3s ease;
+  background-color: ${props => {
+    if (props.checked) {
+      return oc.indigo1;
+    } else if (props.opened) {
+      return oc.orange3;
+    }
+  }};
 
   &:hover {
-    background-color: ${props => !props.checked && oc.teal1};
+    background-color: ${props => !props.checked && !props.opened && oc.orange1};
   }
 
   .ant-list-item-content {
     justify-content: flex-start;
     flex: 0 0 2rem;
   }
+
+  .ant-list-item-meta {
+    max-width: 150px;
+  }
+
+  .ant-list-item-meta-content {
+    max-width: 100%;
+  }
+
+  .ant-list-item-meta-description,
+  .ant-list-item-meta-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .ant-list-item-meta-title {
+    font-weight: bold;
+    font-size: 16px;
+  }
 `;
 
-const initialState = props => ({
+const getState = props => ({
   expanded: false,
   checkedMemos: List(),
 });
 
 export default class MemoList extends Component {
-  state = initialState(this.props);
+  state = getState(this.props);
 
   toggleExpansion = () => {
     this.setState({ expanded: !this.state.expanded });
@@ -75,7 +107,7 @@ export default class MemoList extends Component {
 
   toggleCheckAll = () => {
     if (this.isCheckedAll()) {
-      this.setState({ checkedMemos: initialState(this.props).checkedMemos });
+      this.setState({ checkedMemos: getState(this.props).checkedMemos });
     } else {
       this.setState({
         checkedMemos: this.props.memos,
@@ -99,10 +131,18 @@ export default class MemoList extends Component {
     }
   };
 
+  addMemo = () => {
+    const { label, MemoListActions } = this.props;
+    MemoListActions.createNewMemo().then(val => {
+      history.push({
+        pathname: `/${label}/${textUtils.slug(val.data)}`,
+      });
+    });
+  };
+
   renderHeader = () => {
-    const { labelName, memos, loading } = this.props;
+    const { label, labelName, memos } = this.props;
     const { expanded } = this.state;
-    const size = loading ? '...' : memos.size;
     return (
       <Box>
         <Flex justify="space-between" mb="1rem" align="center">
@@ -110,15 +150,15 @@ export default class MemoList extends Component {
             <IconButton onClick={this.toggleExpansion} active={expanded}>
               <i className="fa fa-list" />
             </IconButton>
-            <MemoListHeaderTitle>
-              {`${labelName} (${size})`}
+            <MemoListHeaderTitle to={`/${label}`}>
+              {`${labelName} (${memos.size})`}
             </MemoListHeaderTitle>
           </Flex>
-          <IconButton>
+          <IconButton onClick={this.addMemo}>
             <i className="fa fa-plus" />
           </IconButton>
         </Flex>
-        <Box pl="0.5rem">
+        <Box pl="0.5rem" mb="0.5rem">
           <Checkbox
             checked={this.isCheckedAll()}
             onChange={this.toggleCheckAll}
@@ -131,25 +171,44 @@ export default class MemoList extends Component {
   };
 
   renderList = () => {
-    const { memos, loading } = this.props;
+    const { memos, label, openedMemo } = this.props;
     const { checkedMemos } = this.state;
-    return loading ? (
-      <Spinner />
-    ) : (
+    let labelPrefix;
+    if (label === 'all') {
+      labelPrefix = '';
+    } else if (label === 'untagged') {
+      labelPrefix = '미분류된 ';
+    } else {
+      labelPrefix = `${label} 라벨에 `;
+    }
+
+    return (
       <AntList
         itemLayout="horizontal"
+        locale={{ emptyText: `${labelPrefix}메모가 없습니다.` }}
         dataSource={memos}
         renderItem={item => (
-          <AntListItem checked={checkedMemos.includes(item)}>
+          <AntListItem
+            checked={checkedMemos.includes(item)}
+            opened={
+              openedMemo && openedMemo._id === item._id ? 'true' : undefined
+            }
+            onClick={() =>
+              history.push({
+                pathname: `/${label}/${textUtils.slug(item)}`,
+              })
+            }
+          >
             <Checkbox
               checked={checkedMemos.includes(item)}
               onChange={() => this.toggleCheckMemo(item)}
+              onClick={e => e.stopPropagation()}
             />
             <AntList.Item.Meta
               title={item.title}
               description={
                 <span>
-                  {timeUtils.format(item.updatedAt)} {item.content}
+                  {timeUtils.format(item.updatedAt)} | {item.content}
                 </span>
               }
             />
@@ -160,12 +219,21 @@ export default class MemoList extends Component {
   };
 
   render() {
+    const { label, openedMemo, openingMemo, MemoListActions } = this.props;
     return (
       <Container>
         <MemoListWrapper>
           {this.renderHeader()}
           {this.renderList()}
         </MemoListWrapper>
+        {openedMemo && (
+          <Memo
+            label={label}
+            memo={openedMemo}
+            loading={openingMemo}
+            actions={MemoListActions}
+          />
+        )}
       </Container>
     );
   }
