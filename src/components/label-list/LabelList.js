@@ -3,9 +3,31 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import oc from 'open-color-js';
 import { Flex } from 'reflexbox';
-import { List as AntList } from 'antd';
+import { Button, List as AntList } from 'antd';
 import textUtils from '~/utils/TextUtils';
 import history from '~/history';
+
+const IconButton = styled.div`
+  color: ${oc.gray8};
+  cursor: pointer;
+  background-color: ${props => (props.active ? oc.gray2 : 'transparent')};
+  &:hover {
+    color: ${oc.gray6};
+    background-color: ${props => (props.active ? oc.gray2 : oc.gray1)};
+  }
+`;
+
+const ItemButtons = styled.div`
+  visibility: hidden;
+  font-size: 12px;
+  margin-left: 4px;
+
+  ${IconButton} {
+    &:first-child {
+      margin-bottom: 4px;
+    }
+  }
+`;
 
 const Container = styled.div`
   padding: 0.5rem;
@@ -24,21 +46,19 @@ const Container = styled.div`
   }
 
   .ant-list-item {
-    padding: 0 4px;
-
-    &:not(:last-of-type) {
-      margin-bottom: 4px;
-    }
+    padding: 0;
   }
-`;
 
-const IconButton = styled.div`
-  color: ${oc.gray8};
-  cursor: pointer;
-  background-color: ${props => (props.active ? oc.gray2 : 'transparent')};
-  &:hover {
-    color: ${oc.gray6};
-    background-color: ${props => (props.active ? oc.gray2 : oc.gray1)};
+  .ant-list-item-content {
+    padding: 0 4px;
+    justify-content: space-between;
+    align-items: center;
+
+    &:hover {
+      ${ItemButtons} {
+        visibility: visible;
+      }
+    }
   }
 `;
 
@@ -68,9 +88,23 @@ export default class LabelList extends Component {
     const { actions } = this.props;
     actions.createNewLabel().then(val => {
       history.push({
-        pathname: `/${textUtils.slug(val.data)}}`,
+        pathname: `/${textUtils.slug(val.data)}`,
+        search: 'expanded=true',
       });
     });
+  };
+
+  deleteLabel = (e, label) => {
+    e.stopPropagation();
+    const { actions } = this.props;
+    if (confirm(`${label.title}\n이 라벨을 삭제하시겠습니까?`)) {
+      actions.deleteLabel(label._id).then(val => {
+        history.push({
+          pathname: `/all`,
+          search: 'expanded=true',
+        });
+      });
+    }
   };
 
   renderHeader = () => {
@@ -78,7 +112,10 @@ export default class LabelList extends Component {
 
     return (
       <Flex mb="0.5rem" justify="space-between">
-        <HeaderTitle to="/all" active={label._id ? undefined : 'true'}>
+        <HeaderTitle
+          to="/all?expanded=true"
+          active={label._id ? undefined : 'true'}
+        >
           {`전체 (${allMemosSize})`}
         </HeaderTitle>
         <IconButton onClick={this.addLabel}>
@@ -101,10 +138,19 @@ export default class LabelList extends Component {
             onClick={() => {
               history.push({
                 pathname: `/${textUtils.slug(item)}`,
+                search: 'expanded=true',
               });
             }}
           >
             {`${item.title} (${item.memoIds.size})`}
+            <ItemButtons>
+              <IconButton>
+                <i className="fa fa-pencil" />
+              </IconButton>
+              <IconButton onClick={e => this.deleteLabel(e, item)}>
+                <i className="fa fa-trash-o" />
+              </IconButton>
+            </ItemButtons>
           </AntListItem>
         )}
       />
@@ -112,10 +158,19 @@ export default class LabelList extends Component {
   };
 
   render() {
+    const { labels } = this.props;
+
     return (
       <Container>
         {this.renderHeader()}
         {this.renderList()}
+        {labels.size === 0 && (
+          <Flex justify="center">
+            <Button type="primary" icon="plus" onClick={this.addLabel}>
+              새 라벨 추가
+            </Button>
+          </Flex>
+        )}
       </Container>
     );
   }
