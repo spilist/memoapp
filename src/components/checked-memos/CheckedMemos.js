@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import oc from 'open-color-js';
-import { Button, List as AntList } from 'antd';
+import { Button, List as AntList, Menu, Dropdown } from 'antd';
 import timeUtils from '~/utils/TimeUtils';
 import textUtils from '~/utils/TextUtils';
+import arrayUtils from '~/utils/ArrayUtils';
 
 const Container = styled.div`
   display: flex;
@@ -68,7 +69,29 @@ const CardContent = styled.div`
 `;
 
 const Content = styled.div`
+  display: flex;
+  justify-content: space-around;
   flex: 1 1;
+`;
+
+const ContentGroup = styled.div`
+  padding: 0.5rem;
+`;
+
+const ContentGroupTitle = styled.div`
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+`;
+
+const ContentGroupDescription = styled.div`
+  padding-left: 0.5rem;
+  font-size: 14px;
+  margin-bottom: 1rem;
+`;
+
+const ContentGroupActions = styled.div`
+  padding-left: 0.5rem;
 `;
 
 export default class CheckedMemos extends Component {
@@ -96,6 +119,16 @@ export default class CheckedMemos extends Component {
         );
       }
     }
+  };
+
+  addMemosToLabel = labelId => {
+    const { memos, LabelListActions } = this.props;
+    LabelListActions.addMemosToLabel(labelId, memos.map(memo => memo._id));
+  };
+
+  deleteMemosFromLabel = labelId => {
+    const { memos, LabelListActions } = this.props;
+    LabelListActions.deleteMemosFromLabel(labelId, memos.map(memo => memo._id));
   };
 
   renderHeader = () => {
@@ -138,7 +171,47 @@ export default class CheckedMemos extends Component {
   };
 
   renderContent = () => {
-    return <Content>content</Content>;
+    const { memos, labels } = this.props;
+    const memoLabelIds = {};
+    memos.forEach(memo => {
+      memoLabelIds[memo._id] = labels
+        .filter(lab => lab.memoIds.includes(memo._id))
+        .map(label => label._id);
+    });
+    const commonLabelIds = arrayUtils.intersect(...Object.values(memoLabelIds));
+    const restLabels = labels.filter(lab => !commonLabelIds.includes(lab._id));
+
+    const labelMenu = (
+      <Menu onClick={({ item, key }) => this.addMemosToLabel(key)}>
+        {restLabels.map(lab => (
+          <Menu.Item key={lab._id}>{lab.title}</Menu.Item>
+        ))}
+      </Menu>
+    );
+
+    return (
+      <Content>
+        <ContentGroup>
+          <ContentGroupTitle>라벨 추가</ContentGroupTitle>
+          <ContentGroupDescription>
+            선택한 메모 전체에 라벨을 추가합니다.
+          </ContentGroupDescription>
+          <ContentGroupActions>
+            <Dropdown overlay={labelMenu} trigger={['click']}>
+              <Button type="primary" icon="plus">
+                추가하기
+              </Button>
+            </Dropdown>
+          </ContentGroupActions>
+        </ContentGroup>
+        <ContentGroup>
+          <ContentGroupTitle>라벨 삭제</ContentGroupTitle>
+          <ContentGroupDescription>
+            선택한 메모에서 해당 라벨을 삭제합니다.
+          </ContentGroupDescription>
+        </ContentGroup>
+      </Content>
+    );
   };
 
   render() {
