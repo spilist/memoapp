@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
+import { List } from 'immutable';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { matchPath } from 'react-router';
 import textUtils from '~/utils/TextUtils';
-import sortUtils from '~/utils/SortUtils';
+import arrayUtils from '~/utils/ArrayUtils';
 import * as memoListActions from '~/store/modules/memoList';
 import * as labelListActions from '~/store/modules/labelList';
 import MemoList from './MemoList';
@@ -16,19 +17,21 @@ const getLabel = (labels, labelId) => {
         title: '전체',
       };
     default:
-      return labels.find(l => l._id === labelId) || {};
+      return labels.find(l => l._id === labelId);
   }
 };
 
 const getMemos = (memos, labels, labelId) => {
   switch (labelId) {
     case 'all':
-      return memos.sort(sortUtils.byUpdatedAt);
+      return memos.sort(arrayUtils.sortByUpdatedAt);
     default:
       const label = getLabel(labels, labelId);
-      return memos
-        .filter(memo => label.memoIds.includes(memo._id))
-        .sort(sortUtils.byUpdatedAt);
+      return label
+        ? memos
+            .filter(memo => label.memoIds.includes(memo._id))
+            .sort(arrayUtils.sortByUpdatedAt)
+        : List();
   }
 };
 
@@ -46,40 +49,59 @@ export class MemoListContainer extends Component {
   }
 
   redirect = props => {
-    const { memos, location } = props;
+    const { memos, location, labels } = props;
     const match = matchPath(location.pathname, {
       path: '/:labelSlug',
       exact: true,
     });
 
     if (match && match.params && match.params.labelSlug) {
-      if (memos.size > 0) {
+      const { labelSlug } = match.params;
+      const labelId = textUtils.getId(labelSlug);
+      const label = getLabel(labels, labelId);
+      if (!label && labelSlug !== 'all') {
+        history.replace({
+          pathname: `/all`,
+          search: location.search,
+        });
+      } else if (memos.size > 0) {
         history.replace({
           pathname: `/${match.params.labelSlug}/${textUtils.slug(
             memos.first()
           )}`,
+          search: location.search,
         });
       }
     }
   };
 
   openMemo = props => {
-    const { location, MemoListActions, label } = props;
+    const { location, MemoListActions, labels } = props;
     const match = matchPath(location.pathname, {
       path: '/:labelSlug/:memoSlug',
       exact: true,
     });
 
     if (match && match.params && match.params.memoSlug) {
-      const { memoSlug } = match.params;
-      const memoId = textUtils.getId(memoSlug);
-      if (!memoId) {
+      const { labelSlug, memoSlug } = match.params;
+      const labelId = textUtils.getId(labelSlug);
+      const label = getLabel(labels, labelId);
+      if (label || labelSlug === 'all') {
+        const memoId = textUtils.getId(memoSlug);
+        if (!memoId) {
+          history.replace({
+            pathname: `/${label}`,
+            search: location.search,
+          });
+        } else {
+          MemoListActions.openMemo(memoId);
+        }
+      } else {
         history.replace({
-          pathname: `/${label}`,
+          pathname: `/all`,
+          search: location.search,
         });
-        return;
       }
-      MemoListActions.openMemo(memoId);
     } else {
       MemoListActions.openMemo(null);
     }

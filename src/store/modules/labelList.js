@@ -7,6 +7,8 @@ export const LIST_ALL_LABELS = 'labelList/LIST_ALL_LABELS';
 export const CREATE_NEW_LABEL = 'labelList/CREATE_NEW_LABEL';
 export const ADD_MEMOS_TO_LABEL = 'labelList/ADD_MEMOS_TO_LABEL';
 export const DELETE_MEMOS_TO_LABEL = 'labelList/DELETE_MEMOS_TO_LABEL';
+export const UPDATE_LABEL = 'labelList/UPDATE_LABEL';
+export const DELETE_LABEL = 'labelList/DELETE_LABEL';
 
 export const listAllLabels = createAction(LIST_ALL_LABELS, () =>
   api.listLabels()
@@ -29,6 +31,12 @@ export const deleteMemosFromLabel = createAction(
       id,
       memoIds,
     })
+);
+export const updateLabel = createAction(UPDATE_LABEL, params =>
+  api.updateLabel(params)
+);
+export const deleteLabel = createAction(DELETE_LABEL, labelId =>
+  api.deleteLabel(labelId)
 );
 
 export const Label = Record({
@@ -114,6 +122,38 @@ export default handleActions(
                 })
               )
             ),
+          })
+        );
+      },
+    }),
+    ...pender({
+      type: UPDATE_LABEL,
+      onSuccess: (state, { payload: response }) => {
+        const label = response.data;
+        const target = Label({
+          ...label,
+          memoIds: List(label.memos.map(memo => memo._id)),
+        });
+        const index = state.labels.findIndex(lab => lab._id === target._id);
+        const labels =
+          index === -1
+            ? state.labels.push(target)
+            : state.labels.set(index, target);
+
+        return state.merge(
+          Map({
+            labels: labels,
+          })
+        );
+      },
+    }),
+    ...pender({
+      type: DELETE_LABEL,
+      onSuccess: (state, { payload: response }) => {
+        const deleted = Label(response.data);
+        return state.merge(
+          Map({
+            labels: state.labels.filter(lab => lab._id !== deleted._id),
           })
         );
       },

@@ -66,6 +66,12 @@ export function deleteMemo(memoId) {
   });
 }
 
+export function deleteLabel(labelId) {
+  return del(END_POINTS.label.delete, {
+    id: labelId,
+  });
+}
+
 export function deleteMemos(memoIds) {
   return delAll(END_POINTS.memo.delete, memoIds);
 }
@@ -79,6 +85,18 @@ export function updateMemo(params) {
     {
       title: params.title,
       content: params.content,
+    }
+  );
+}
+
+export function updateLabel(params) {
+  return put(
+    END_POINTS.label.update,
+    {
+      id: params.id,
+    },
+    {
+      title: params.title,
     }
   );
 }
