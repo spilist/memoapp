@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import oc from 'open-color-js';
 import { Flex } from 'reflexbox';
-import { Button, List as AntList } from 'antd';
+import { Input, Button, List as AntList } from 'antd';
 import textUtils from '~/utils/TextUtils';
 import history from '~/history';
 
@@ -48,18 +48,6 @@ const Container = styled.div`
   .ant-list-item {
     padding: 0;
   }
-
-  .ant-list-item-content {
-    padding: 0 4px;
-    justify-content: space-between;
-    align-items: center;
-
-    &:hover {
-      ${ItemButtons} {
-        visibility: visible;
-      }
-    }
-  }
 `;
 
 const HeaderTitle = styled(Link)`
@@ -77,9 +65,29 @@ const AntListItem = styled(AntList.Item)`
   &:hover {
     color: ${props => !props.active && oc.blue4};
   }
+
+  .ant-list-item-content {
+    padding: ${props => (props.editing ? '0' : '0 4px')};
+    justify-content: space-between;
+    align-items: center;
+
+    &:hover {
+      ${ItemButtons} {
+        visibility: visible;
+      }
+    }
+  }
 `;
 
-const getState = props => ({});
+const LabelInput = styled(Input)`
+  &.ant-input {
+    height: 40px;
+  }
+`;
+
+const getState = props => ({
+  opendLabelFormId: null,
+});
 
 export default class LabelList extends Component {
   state = getState(this.props);
@@ -91,11 +99,12 @@ export default class LabelList extends Component {
         pathname: `/${textUtils.slug(val.data)}`,
         search: 'expanded=true',
       });
+      this.openLabelEditForm(val.data);
     });
   };
 
-  deleteLabel = (e, label) => {
-    e.stopPropagation();
+  deleteLabel = (label, e) => {
+    e && e.stopPropagation();
     const { actions } = this.props;
     if (confirm(`${label.title}\n이 라벨을 삭제하시겠습니까?`)) {
       actions.deleteLabel(label._id).then(val => {
@@ -105,6 +114,23 @@ export default class LabelList extends Component {
         });
       });
     }
+  };
+
+  updateLabel = (label, e) => {
+    e && e.stopPropagation();
+    const { actions } = this.props;
+    actions.updateLabel({
+      id: label._id,
+      title: e.target.value,
+    });
+    this.setState({ opendLabelFormId: null });
+  };
+
+  openLabelEditForm = (label, e) => {
+    e && e.stopPropagation();
+    this.setState({ opendLabelFormId: label._id }, () => {
+      document.getElementById(label._id).focus();
+    });
   };
 
   renderHeader = () => {
@@ -127,6 +153,8 @@ export default class LabelList extends Component {
 
   renderList = () => {
     const { label, labels } = this.props;
+    const { opendLabelFormId } = this.state;
+
     return (
       <AntList
         itemLayout="horizontal"
@@ -135,6 +163,7 @@ export default class LabelList extends Component {
         renderItem={item => (
           <AntListItem
             active={label._id === item._id ? 'true' : undefined}
+            editing={opendLabelFormId === item._id ? 'true' : undefined}
             onClick={() => {
               history.push({
                 pathname: `/${textUtils.slug(item)}`,
@@ -142,15 +171,28 @@ export default class LabelList extends Component {
               });
             }}
           >
-            {`${item.title} (${item.memoIds.size})`}
-            <ItemButtons>
-              <IconButton>
-                <i className="fa fa-pencil" />
-              </IconButton>
-              <IconButton onClick={e => this.deleteLabel(e, item)}>
-                <i className="fa fa-trash-o" />
-              </IconButton>
-            </ItemButtons>
+            {opendLabelFormId === item._id ? (
+              <LabelInput
+                id={item._id}
+                size="small"
+                defaultValue={item.title}
+                onClick={e => e.stopPropagation()}
+                onPressEnter={e => this.updateLabel(item, e)}
+                onBlur={e => this.updateLabel(item, e)}
+              />
+            ) : (
+              <Fragment>
+                {`${item.title} (${item.memoIds.size})`}
+                <ItemButtons>
+                  <IconButton onClick={e => this.openLabelEditForm(item, e)}>
+                    <i className="fa fa-pencil" />
+                  </IconButton>
+                  <IconButton onClick={e => this.deleteLabel(item, e)}>
+                    <i className="fa fa-trash-o" />
+                  </IconButton>
+                </ItemButtons>
+              </Fragment>
+            )}
           </AntListItem>
         )}
       />
@@ -166,8 +208,13 @@ export default class LabelList extends Component {
         {this.renderList()}
         {labels.size === 0 && (
           <Flex justify="center">
-            <Button type="primary" icon="plus" onClick={this.addLabel}>
-              새 라벨 추가
+            <Button
+              type="primary"
+              icon="plus"
+              onClick={this.addLabel}
+              size="small"
+            >
+              새 라벨
             </Button>
           </Flex>
         )}

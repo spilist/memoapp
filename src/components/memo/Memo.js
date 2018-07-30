@@ -92,24 +92,7 @@ const Content = styled.div`
   flex: 1 1;
 `;
 
-const getState = props => ({
-  title: props.memo.title,
-  content: props.memo.content,
-});
-
 export default class Memo extends Component {
-  state = getState(this.props);
-
-  componentDidUpdate(prevProps) {
-    if (this.props.memo.updatedAt !== prevProps.memo.updatedAt) {
-      this.setState(getState(this.props));
-    }
-  }
-
-  handleChange = (name, e) => {
-    this.setState({ [name]: e.target.value });
-  };
-
   updateMemo = (name, e) => {
     const { MemoListActions, memo } = this.props;
     const value = e.target.value;
@@ -154,15 +137,13 @@ export default class Memo extends Component {
 
   renderHeader = () => {
     const { memo, labels } = this.props;
-    const { title } = this.state;
     const memoLabels = labels.filter(lab => lab.memoIds.includes(memo._id));
 
     return (
       <Header>
         <HeaderLeft>
           <HeaderInput
-            value={title}
-            onChange={e => this.handleChange('title', e)}
+            defaultValue={memo.title}
             onBlur={e => this.updateMemo('title', e)}
             onPressEnter={e => {
               this.updateMemo('title', e);
@@ -207,15 +188,14 @@ export default class Memo extends Component {
   };
 
   renderContent = () => {
-    const { content } = this.state;
+    const { memo } = this.props;
 
     return (
       <Content>
         <Textarea
           innerRef={ref => (this.contentTextarea = ref)}
           autosize
-          value={content}
-          onChange={v => this.handleChange('content', v)}
+          defaultValue={memo.content}
           onBlur={e => this.updateMemo('content', e)}
         />
       </Content>

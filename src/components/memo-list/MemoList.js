@@ -41,10 +41,11 @@ const IconButton = styled.div`
   }
 `;
 
-const MemoListHeaderTitle = styled(Link)`
+const MemoListHeaderTitle = styled.div`
   font-size: 16px;
   font-weight: bold;
   margin-left: 4px;
+  cursor: pointer;
 `;
 
 const AntListItem = styled(AntList.Item)`
@@ -158,7 +159,6 @@ export default class MemoList extends Component {
     const index = checkedMemos.findIndex(checked => checked._id === memo._id);
 
     if (index === -1) {
-      // not checked
       this.setState({
         checkedMemos: checkedMemos.push(memo),
       });
@@ -210,9 +210,7 @@ export default class MemoList extends Component {
             <IconButton onClick={this.toggleExpansion} active={expanded}>
               <i className="fa fa-list" />
             </IconButton>
-            <MemoListHeaderTitle
-              to={`/${textUtils.slug(label)}${location.search}`}
-            >
+            <MemoListHeaderTitle onClick={this.toggleExpansion}>
               {`${label.title} (${memos.size})`}
             </MemoListHeaderTitle>
           </Flex>
