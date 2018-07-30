@@ -44,6 +44,8 @@ injectGlobal`
   }
 
   .root {
+    min-width: 700px;
+    
     a {
       color: ${oc.gray8};
     }
