@@ -170,12 +170,13 @@ export default class MemoList extends Component {
   };
 
   addMemo = () => {
-    const { label, LabelListActions, MemoListActions } = this.props;
+    const { label, LabelListActions, MemoListActions, location } = this.props;
     if (label._id) {
       MemoListActions.createNewMemo().then(val => {
         LabelListActions.addMemosToLabel(label._id, [val.data._id]).then(() => {
           history.push({
             pathname: `/${textUtils.slug(label)}/${textUtils.slug(val.data)}`,
+            search: location.search,
           });
         });
       });
@@ -183,22 +184,24 @@ export default class MemoList extends Component {
       MemoListActions.createNewMemo().then(val => {
         history.push({
           pathname: `/${textUtils.slug(label)}/${textUtils.slug(val.data)}`,
+          search: location.search,
         });
       });
     }
   };
 
   deleteAllCallback = () => {
-    const { label } = this.props;
+    const { label, location } = this.props;
     this.setState({ checkedMemos: getState(this.props).checkedMemos }, () =>
       history.replace({
         pathname: `/${textUtils.slug(label)}`,
+        search: location.search,
       })
     );
   };
 
   renderHeader = () => {
-    const { label, memos } = this.props;
+    const { label, memos, location } = this.props;
     const { expanded } = this.state;
     return (
       <Box>
@@ -207,7 +210,9 @@ export default class MemoList extends Component {
             <IconButton onClick={this.toggleExpansion} active={expanded}>
               <i className="fa fa-list" />
             </IconButton>
-            <MemoListHeaderTitle to={`/${textUtils.slug(label)}`}>
+            <MemoListHeaderTitle
+              to={`/${textUtils.slug(label)}${location.search}`}
+            >
               {`${label.title} (${memos.size})`}
             </MemoListHeaderTitle>
           </Flex>
@@ -228,7 +233,7 @@ export default class MemoList extends Component {
   };
 
   renderListItem = item => {
-    const { label, labels, openedMemo } = this.props;
+    const { label, labels, openedMemo, location } = this.props;
     const { checkedMemos } = this.state;
     const itemLabels = labels.filter(lab => lab.memoIds.includes(item._id));
 
@@ -247,6 +252,7 @@ export default class MemoList extends Component {
           }
           history.push({
             pathname: `/${textUtils.slug(label)}/${textUtils.slug(item)}`,
+            search: location.search,
           });
         }}
       >
@@ -273,6 +279,7 @@ export default class MemoList extends Component {
                         e.stopPropagation();
                         history.push({
                           pathname: `/${textUtils.slug(lab)}`,
+                          search: location.search,
                         });
                       }}
                     >
@@ -325,8 +332,13 @@ export default class MemoList extends Component {
       openingMemo,
       MemoListActions,
       LabelListActions,
+      location,
     } = this.props;
     const { expanded, checkedMemos } = this.state;
+
+    if (!label) {
+      return null;
+    }
 
     return (
       <Container>
@@ -350,6 +362,7 @@ export default class MemoList extends Component {
             MemoListActions={MemoListActions}
             LabelListActions={LabelListActions}
             deleteAllCallback={this.deleteAllCallback}
+            search={location.search}
           />
         )}
         {openedMemo && (
@@ -361,6 +374,7 @@ export default class MemoList extends Component {
             loading={openingMemo}
             MemoListActions={MemoListActions}
             LabelListActions={LabelListActions}
+            search={location.search}
           />
         )}
       </Container>

@@ -122,19 +122,31 @@ export default class Memo extends Component {
   };
 
   deleteMemo = () => {
-    const { LabelListActions, MemoListActions, memo, label } = this.props;
+    const {
+      LabelListActions,
+      MemoListActions,
+      memo,
+      label,
+      search,
+    } = this.props;
     if (confirm(`${memo.title}\n이 메모를 삭제하시겠습니까?`)) {
       if (label._id) {
         MemoListActions.deleteMemo(memo._id).then(val => {
           LabelListActions.deleteMemosFromLabel(label._id, [val.data._id]).then(
             () => {
-              history.replace(`/${textUtils.slug(label)}`);
+              history.replace({
+                pathname: `/${textUtils.slug(label)}`,
+                search,
+              });
             }
           );
         });
       } else {
         MemoListActions.deleteMemo(memo._id).then(val =>
-          history.replace(`/${textUtils.slug(label)}`)
+          history.replace({
+            pathname: `/${textUtils.slug(label)}`,
+            search,
+          })
         );
       }
     }
