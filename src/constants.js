@@ -10,6 +10,8 @@ export default {
     label: {
       list: '/labels',
       create: '/labels',
+      update: '/labels/:id',
+      delete: '/labels/:id',
       addMemos: '/labels/:id/memos',
       deleteMemos: '/labels/:id/memos',
     },
