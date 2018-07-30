@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import oc from 'open-color-js';
-import { Button, List as AntList, Menu, Dropdown } from 'antd';
+import { Flex } from 'reflexbox';
+import { Button, List as AntList, Menu, Dropdown, Tag } from 'antd';
 import timeUtils from '~/utils/TimeUtils';
 import textUtils from '~/utils/TextUtils';
 import arrayUtils from '~/utils/ArrayUtils';
@@ -94,6 +95,15 @@ const ContentGroupActions = styled.div`
   padding-left: 0.5rem;
 `;
 
+const ContentGroupActionItem = styled.div`
+  padding-bottom: 0.5rem;
+`;
+
+const Labels = styled.div`
+  padding-left: 0.5rem;
+  font-size: 12px;
+`;
+
 export default class CheckedMemos extends Component {
   deleteAllMemos = () => {
     const {
@@ -172,12 +182,12 @@ export default class CheckedMemos extends Component {
 
   renderContent = () => {
     const { memos, labels } = this.props;
-    const memoLabelIds = {};
-    memos.forEach(memo => {
-      memoLabelIds[memo._id] = labels
+    const memoLabelIds = memos.reduce((acc, memo) => {
+      acc[memo._id] = labels
         .filter(lab => lab.memoIds.includes(memo._id))
         .map(label => label._id);
-    });
+      return acc;
+    }, {});
     const commonLabelIds = arrayUtils.intersect(...Object.values(memoLabelIds));
     const restLabels = labels.filter(lab => !commonLabelIds.includes(lab._id));
 
@@ -188,6 +198,23 @@ export default class CheckedMemos extends Component {
         ))}
       </Menu>
     );
+
+    const labelWithMemos = labels.reduce((acc, lab) => {
+      if (lab.memoIds.size === 0) {
+        return acc;
+      }
+      const intersection = arrayUtils.intersect(
+        lab.memoIds,
+        memos.map(memo => memo._id)
+      );
+
+      if (intersection.size === 0) {
+        return acc;
+      }
+
+      acc[lab._id] = intersection;
+      return acc;
+    }, {});
 
     return (
       <Content>
@@ -207,8 +234,34 @@ export default class CheckedMemos extends Component {
         <ContentGroup>
           <ContentGroupTitle>라벨 삭제</ContentGroupTitle>
           <ContentGroupDescription>
-            선택한 메모에서 해당 라벨을 삭제합니다.
+            선택한 메모에서 라벨을 삭제합니다.
           </ContentGroupDescription>
+          <ContentGroupActions>
+            {labels.filter(lab => labelWithMemos[lab._id]).map(lab => (
+              <ContentGroupActionItem key={lab._id}>
+                <Flex mb="4px">
+                  <Tag key={lab._id} color="geekblue">
+                    {`${textUtils.truncate(lab.title, 20)} (${
+                      labelWithMemos[lab._id].size
+                    })`}
+                  </Tag>
+                  <Button
+                    type="danger"
+                    size="small"
+                    onClick={() => this.deleteMemosFromLabel(lab._id)}
+                  >
+                    삭제
+                  </Button>
+                </Flex>
+                <Labels>
+                  {memos
+                    .filter(memo => labelWithMemos[lab._id].includes(memo._id))
+                    .map(memo => memo.title)
+                    .join(', ')}
+                </Labels>
+              </ContentGroupActionItem>
+            ))}
+          </ContentGroupActions>
         </ContentGroup>
       </Content>
     );
