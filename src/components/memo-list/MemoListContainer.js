@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { matchPath } from 'react-router';
 import textUtils from '~/utils/TextUtils';
-import sortUtils from '~/utils/SortUtils';
+import arrayUtils from '~/utils/ArrayUtils';
 import * as memoListActions from '~/store/modules/memoList';
 import * as labelListActions from '~/store/modules/labelList';
 import MemoList from './MemoList';
@@ -24,13 +24,13 @@ const getLabel = (labels, labelId) => {
 const getMemos = (memos, labels, labelId) => {
   switch (labelId) {
     case 'all':
-      return memos.sort(sortUtils.byUpdatedAt);
+      return memos.sort(arrayUtils.sortByUpdatedAt);
     default:
       const label = getLabel(labels, labelId);
       return label
         ? memos
             .filter(memo => label.memoIds.includes(memo._id))
-            .sort(sortUtils.byUpdatedAt)
+            .sort(arrayUtils.sortByUpdatedAt)
         : List();
   }
 };
