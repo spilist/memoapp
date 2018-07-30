@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import oc from 'open-color-js';
 import { Spinner } from '../common';
-import { Input, Button, Tag } from 'antd';
+import { Input, Button, Tag, Menu, Dropdown } from 'antd';
 import timeUtils from '~/utils/TimeUtils';
 import textUtils from '~/utils/TextUtils';
 import history from '~/history';
@@ -60,6 +60,7 @@ const ItemLabelsIcon = styled.div`
 const AntTag = styled(Tag)`
   &.ant-tag {
     font-size: 10px;
+    margin-right: 4px;
   }
 `;
 
@@ -135,9 +136,29 @@ export default class Memo extends Component {
     }
   };
 
+  deleteMemoFromLabel = (labelId, e) => {
+    e && e.stopPropagation();
+    const { memo, LabelListActions } = this.props;
+    LabelListActions.deleteMemosFromLabel(labelId, [memo._id]);
+  };
+
+  addMemoToLabel = labelId => {
+    const { memo, LabelListActions } = this.props;
+    LabelListActions.addMemosToLabel(labelId, [memo._id]);
+  };
+
   renderHeader = () => {
     const { memo, labels } = this.props;
     const memoLabels = labels.filter(lab => lab.memoIds.includes(memo._id));
+    const restLabels = labels.filter(lab => !lab.memoIds.includes(memo._id));
+
+    const labelMenu = (
+      <Menu onClick={({ item, key }) => this.addMemoToLabel(key)}>
+        {restLabels.map(lab => (
+          <Menu.Item key={lab._id}>{lab.title}</Menu.Item>
+        ))}
+      </Menu>
+    );
 
     return (
       <Header>
@@ -150,27 +171,34 @@ export default class Memo extends Component {
               this.contentTextarea.focus();
             }}
           />
-          {memoLabels.size > 0 && (
-            <ItemLabels>
-              <ItemLabelsIcon>
-                <i className="fa fa-tags" />
-              </ItemLabelsIcon>
-              {memoLabels.map(lab => (
-                <AntTag
-                  key={lab._id}
-                  color="geekblue"
-                  onClick={e => {
-                    e.stopPropagation();
-                    history.push({
-                      pathname: `/${textUtils.slug(lab)}`,
-                    });
-                  }}
-                >
-                  {textUtils.truncate(lab.title, 25)}
+          <ItemLabels>
+            <ItemLabelsIcon>
+              <i className="fa fa-tags" />
+            </ItemLabelsIcon>
+            {memoLabels.map(lab => (
+              <AntTag
+                key={lab._id}
+                color="geekblue"
+                onClick={e => {
+                  e.stopPropagation();
+                  history.push({
+                    pathname: `/${textUtils.slug(lab)}`,
+                  });
+                }}
+                closable
+                onClose={e => this.deleteMemoFromLabel(lab._id, e)}
+              >
+                {textUtils.truncate(lab.title, 25)}
+              </AntTag>
+            ))}
+            {restLabels.size > 0 && (
+              <Dropdown overlay={labelMenu} trigger={['click']}>
+                <AntTag style={{ background: '#fff', borderStyle: 'dashed' }}>
+                  <i className="fa fa-plus" /> 추가
                 </AntTag>
-              ))}
-            </ItemLabels>
-          )}
+              </Dropdown>
+            )}
+          </ItemLabels>
         </HeaderLeft>
         <HeaderRight>
           <Button

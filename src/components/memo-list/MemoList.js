@@ -105,6 +105,7 @@ const ItemLabels = styled.div`
 const AntTag = styled(Tag)`
   &.ant-tag {
     font-size: 10px;
+    margin-right: 4px;
     background-color: ${props => props.active && oc.cyan2};
 
     &:hover {
@@ -201,12 +202,12 @@ export default class MemoList extends Component {
   };
 
   renderHeader = () => {
-    const { label, memos, location } = this.props;
+    const { label, memos } = this.props;
     const { expanded } = this.state;
     return (
       <Box>
         <Flex justify="space-between" mb="1rem" align="center">
-          <Flex>
+          <Flex align="flex-start">
             <IconButton onClick={this.toggleExpansion} active={expanded}>
               <i className="fa fa-list" />
             </IconButton>
