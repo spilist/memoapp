@@ -22,6 +22,7 @@ beforeEach(() => {
     MemoListActions: {
       openMemo: jest.fn(),
     },
+    labels: List(),
   };
   state = {
     memoList: {
@@ -77,6 +78,7 @@ describe('[MemoListContainer]', () => {
         renderWithRouter();
         expect(history.replace).toBeCalledWith({
           pathname: '/all/some-random-word--blahblah',
+          search: '',
         });
       });
     });
